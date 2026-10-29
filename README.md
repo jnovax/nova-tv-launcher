@@ -151,6 +151,19 @@ To restore your TV back to its exact untouched factory state:
 - 📺 Restores your original stock launcher as the default Home.
 - ⚡ Reverts animation scales back to original values.
 - 🍎 Offers interactive clean uninstallation of Apple TV Launcher and SmartTube.
+---
+
+## 🙏 Credits & Acknowledgments
+
+This project is built upon the foundational research and scripts of [**CleanYourTV**](https://github.com/Gathin23/cleanyourtv) by [Gathin](https://github.com/Gathin23). We are grateful to the open-source community for paving the way.
+
+Building on that foundation, **Apple TV Launcher** introduces:
+- Authentic tvOS 18 minimalist aesthetic with dynamic RGB ambient artwork glow
+- Dedicated Apple TV Recent Apps Switcher (`RecentAppsActivity`) with animated card carousel
+- Native Remote Double-Press Home gesture navigation
+- Zero-lag volume button hold acceleration (preserves Linux `InputDispatcher` repeat queue)
+- Unified read-only inspection, atomic debloat handover, and full-state rollback engine (`tools/`)
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
