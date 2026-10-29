@@ -155,14 +155,13 @@ To restore your TV back to its exact untouched factory state:
 
 ## 🙏 Credits & Acknowledgments
 
-This project is built upon the foundational research and scripts of [**CleanYourTV**](https://github.com/Gathin23/cleanyourtv) by [Gathin](https://github.com/Gathin23). We are grateful to the open-source community for paving the way.
+This project is based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv) by [Gathin](https://github.com/Gathin23). Parts of the launcher code (cards, grid navigation, sky/festival effects, settings) and the debloat workflow come from it, used under the MIT License.
 
-Building on that foundation, **Apple TV Launcher** introduces:
-- Authentic tvOS 18 minimalist aesthetic with dynamic RGB ambient artwork glow
-- Dedicated Apple TV Recent Apps Switcher (`RecentAppsActivity`) with animated card carousel
-- Native Remote Double-Press Home gesture navigation
-- Zero-lag volume button hold acceleration (preserves Linux `InputDispatcher` repeat queue)
-- Unified read-only inspection, atomic debloat handover, and full-state rollback engine (`tools/`)
+New in Apple TV Launcher:
+- Apple TV Recent Apps Switcher (`RecentAppsActivity`) with animated card carousel
+- Remote double-press Home gesture
+- Zero-lag volume hold acceleration
+- tvOS 18 style home and settings
 
 ## 📄 License
 
