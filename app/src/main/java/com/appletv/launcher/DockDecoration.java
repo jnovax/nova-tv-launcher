@@ -21,10 +21,10 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     DockDecoration(int dockSize, float density) {
         this.dockSize = dockSize;
         this.density = density;
-        band.setColor(0x801E1E1E);
+        band.setColor(0xB8121214);
         edge.setStyle(Paint.Style.STROKE);
-        edge.setStrokeWidth(0.5f * density);
-        edge.setColor(0x1AFFFFFF);
+        edge.setStrokeWidth(1.0f * density);
+        edge.setColor(0x2EFFFFFF);
     }
 
     @Override
@@ -32,35 +32,38 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
                                @NonNull RecyclerView.State state) {
         int pos = parent.getChildAdapterPosition(view);
         if (pos >= 0 && pos < dockSize) {
-            outRect.top = (int) (6 * density);
-            outRect.bottom = (int) (12 * density);
+            outRect.top = (int) (12 * density);
+            outRect.bottom = (int) (18 * density);
         }
     }
 
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         boolean any = false;
+        float minT = Float.MAX_VALUE;
+        float maxB = Float.MIN_VALUE;
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(child);
             if (pos < 0 || pos >= dockSize) continue;
             View card = child.findViewById(R.id.card);
             if (card == null) continue;
-            float l = child.getLeft() + card.getLeft();
             float t = child.getTop() + card.getTop() + child.getTranslationY();
-            float r = l + card.getWidth();
             float b = t + card.getHeight();
-            if (!any) {
-                rect.set(l, t, r, b);
-                any = true;
-            } else {
-                rect.union(l, t, r, b);
-            }
+            minT = Math.min(minT, t);
+            maxB = Math.max(maxB, b);
+            any = true;
         }
         if (!any) return;
-        float pad = 14 * density;
-        rect.inset(-pad, -pad);
-        float radius = 30 * density;
+
+        float l = parent.getPaddingLeft() - (12 * density);
+        float r = parent.getWidth() - parent.getPaddingRight() + (12 * density);
+        float padY = 20 * density;
+        float t = minT - padY;
+        float b = maxB + padY;
+
+        rect.set(l, t, r, b);
+        float radius = 28 * density;
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
     }

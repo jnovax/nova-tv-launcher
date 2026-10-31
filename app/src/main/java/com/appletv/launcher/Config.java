@@ -16,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The launcher's settings: the values in res/values/config.xml, with an optional overlay read from
@@ -64,6 +66,8 @@ final class Config {
     final boolean settingsKeyPanel;
     /** Full-screen picture behind the launcher, or null for the plain colour. */
     final File wallpaper;
+    final int dockPaddingTop;
+    final Map<Integer, String> keyMappings;
     /** Whether the overlay file was present and parsed. */
     final boolean overlayApplied;
     /** Festive skin from a theme (festival, festival_until, greeting, accent_color); {@link Festival#NONE} if none. */
@@ -74,7 +78,8 @@ final class Config {
                    int columns, int rowsBelowDock, boolean animations, boolean advancedEffects,
                    boolean shamsiDate, boolean moduleCards, boolean reducedMotion, String vpnApp,
                    boolean showHomeSettingsShortcut, int backgroundColor, int skyIntensity,
-                   int[] settingsKeycodes, boolean settingsKeyPanel, File wallpaper, boolean overlayApplied,
+                   int[] settingsKeycodes, boolean settingsKeyPanel, File wallpaper, int dockPaddingTop,
+                   Map<Integer, String> keyMappings, boolean overlayApplied,
                    Festival festival) {
         this.dockApps = Collections.unmodifiableList(dockApps);
         this.fillDock = fillDock;
@@ -98,6 +103,8 @@ final class Config {
         this.settingsKeycodes = settingsKeycodes;
         this.settingsKeyPanel = settingsKeyPanel;
         this.wallpaper = wallpaper;
+        this.dockPaddingTop = dockPaddingTop;
+        this.keyMappings = Collections.unmodifiableMap(keyMappings);
         this.overlayApplied = overlayApplied;
         this.festival = festival;
     }
@@ -130,7 +137,17 @@ final class Config {
         int skyIntensity = res.getInteger(R.integer.sky_intensity);
         int[] settingsKeycodes = res.getIntArray(R.array.settings_key_keycodes);
         boolean settingsKeyPanel = res.getBoolean(R.bool.settings_key_panel);
+        int dockPaddingTop = -1;
         boolean applied = false;
+
+        Map<Integer, String> keyMappings = new HashMap<>();
+        // Default remap for TCL remote app buttons
+        keyMappings.put(190, "io.gh.reisxd.tizentube.cobalt"); // YouTube -> TizenTube
+        keyMappings.put(4168, "vn.mytvnet.b2cott");             // VTVgo -> MyTV
+        keyMappings.put(4062, "org.courville.nova");            // Netflix -> Nova Video Player
+        keyMappings.put(178, "action:inputs");                  // Change Input -> HDMI / Inputs Menu
+        keyMappings.put(4001, "action:wallpaper");              // Change Channel -> Cycle Wallpaper
+        keyMappings.put(83, "action:settings");                 // Settings key -> Quick Settings Panel
 
         File dir = dir(ctx);
         File file = dir != null ? new File(dir, FILE_NAME) : null;
@@ -147,6 +164,7 @@ final class Config {
             inputAction = string(json, "input_action", inputAction);
             columns = integer(json, "columns", columns, 1, 8);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
+            dockPaddingTop = integer(json, "dock_padding_top", dockPaddingTop, -1, 2000);
             animations = bool(json, "animations", animations);
             advancedEffects = bool(json, "advanced_effects", advancedEffects);
             shamsi = bool(json, "shamsi_date", shamsi);
@@ -158,6 +176,22 @@ final class Config {
             skyIntensity = integer(json, "sky_intensity", skyIntensity, 0, 100);
             settingsKeycodes = intArray(json, "settings_key_keycodes", settingsKeycodes);
             settingsKeyPanel = bool(json, "settings_key_panel", settingsKeyPanel);
+            if (json.has("key_mappings")) {
+                JSONObject km = json.optJSONObject("key_mappings");
+                if (km != null) {
+                    java.util.Iterator<String> it = km.keys();
+                    while (it.hasNext()) {
+                        String k = it.next();
+                        try {
+                            int code = Integer.parseInt(k);
+                            String pkg = km.optString(k, "").trim();
+                            if (!pkg.isEmpty()) {
+                                keyMappings.put(code, pkg);
+                            }
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+            }
         }
         // A theme push or reset invalidates choices made on the TV. On first use, remember the
         // current theme without clearing choices from an older launcher version.
@@ -178,8 +212,8 @@ final class Config {
         return new Config(dock, fillDock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
                 Math.max(1, columns), Math.max(0, rowsBelow), animations, advancedEffects,
                 shamsi, moduleCards, reducedMotion, vpn, homeSettings, background,
-                Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, wallpaper, applied,
-                festival);
+                Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, wallpaper, dockPaddingTop,
+                keyMappings, applied, festival);
     }
 
     private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {

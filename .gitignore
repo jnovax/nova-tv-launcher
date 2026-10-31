@@ -15,4 +15,9 @@ build/downloads/
 reports/*.md
 reports/*.txt
 reports/*.sh
+reports/*.json
 !reports/.gitkeep
+
+# Local wallpapers
+wallpapers/
+

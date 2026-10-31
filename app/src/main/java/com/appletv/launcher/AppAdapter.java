@@ -87,7 +87,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
     static final float FOCUS_SCALE = 1.2267f;
     /** Design size of a tile (dp); tiles shrink from here when the columns don't fit, see tileWidthPx. */
-    static final float DESIGN_W_DP = 125f, DESIGN_H_DP = 75f;
+    static final float DESIGN_W_DP = 160f, DESIGN_H_DP = 96f;
 
     /**
      * Tile width for a grid of this inner width: the cell minus room for the focus zoom and the glass
@@ -97,7 +97,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         int design = Math.round(DESIGN_W_DP * density);
         if (innerWidthPx <= 0 || columns <= 0) return design;
         int cell = innerWidthPx / columns;
-        int fit = (int) ((cell - 12 * density) / FOCUS_SCALE);
+        int fit = (int) ((cell - 16 * density) / FOCUS_SCALE);
         return Math.max(Math.round(80 * density), Math.min(design, fit));
     }
 
@@ -314,6 +314,14 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public int getAppCount() {
+        int count = 0;
+        for (Entry e : items) {
+            if (e.kind != Entry.EMPTY) count++;
+        }
+        return count;
     }
 
     @Override

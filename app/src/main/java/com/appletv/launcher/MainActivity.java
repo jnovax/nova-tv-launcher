@@ -81,6 +81,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     static final String ACTION_LAUNCHER_SETTINGS = "com.appletv.launcher.action.LAUNCHER_SETTINGS";
+    static final String ACTION_CYCLE_WALLPAPER = "com.appletv.launcher.action.CYCLE_WALLPAPER";
+    static final String ACTION_SHOW_INPUTS = "com.appletv.launcher.action.SHOW_INPUTS";
+    static final String ACTION_LAUNCH_APP = "com.appletv.launcher.action.LAUNCH_APP";
+    static final String EXTRA_PACKAGE_NAME = "com.appletv.launcher.extra.PACKAGE_NAME";
+    private android.widget.ImageView wallpaperView;
+    private int currentWallpaperIdx = 0;
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
     private boolean rtlAppGrid;
@@ -307,10 +313,29 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             int h = b - t;
             // Item height follows the tile size, which follows the column count (AppAdapter.tileWidthPx).
             int inner = (r - l) - grid.getPaddingLeft() - grid.getPaddingRight();
-            int itemH = AppAdapter.itemHeightPx(AppAdapter.tileHeightPx(AppAdapter.tileWidthPx(inner, COLUMNS, density)), density);
-            int dockRow = itemH + (int) ((6 + 12) * density);   // item height plus DockDecoration offsets
+            int tileW = AppAdapter.tileWidthPx(inner, COLUMNS, density);
+            int tileH = AppAdapter.tileHeightPx(tileW);
+            int itemH = AppAdapter.itemHeightPx(tileH, density);
+            int dockRow = itemH + (int) ((12 + 18) * density);   // item height plus DockDecoration offsets
             int gridRows = itemH * rowsBelowDock;
-            int want = (int) (140 * density);
+            int want;
+            if (cfg.dockPaddingTop >= 0) {
+                want = (int) (cfg.dockPaddingTop * density);
+            } else {
+                int totalApps = adapter != null ? adapter.getAppCount() : 5;
+                if (totalApps <= 6) {
+                    // When <= 6 apps (dock only, no apps below to scroll down to),
+                    // the bottom margin of the dock platter equals the left/right screen margin.
+                    int sideMargin = grid.getPaddingLeft() - (int) (12 * density);
+                    int targetTop = h - tileH - (int) (32 * density) - sideMargin;
+                    want = Math.max((int) (80 * density), targetTop);
+                } else {
+                    // When > 6 apps, keep the larger bottom margin so users see/hint at rows below.
+                    int bottomPad = (int) (36 * density);
+                    int targetTop = h - dockRow - gridRows - bottomPad;
+                    want = Math.max((int) (80 * density), targetTop);
+                }
+            }
             if (grid.getPaddingTop() != want) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());
             }
@@ -352,9 +377,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         }
 
+        View btnWallpaper = findViewById(R.id.btnWallpaper);
         btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
-        btnInputs.setOnClickListener(v -> showInputs());
+        if (btnWallpaper != null) {
+            btnWallpaper.setOnClickListener(v -> cycleWallpaper());
+            btnWallpaper.setOnLongClickListener(v -> {
+                showWallpaperMenu();
+                return true;
+            });
+        }
+        btnInputs.setOnClickListener(v -> toggleInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
         btnWifi.setOnLongClickListener(v -> {
             open(systemIntent(Settings.ACTION_WIFI_SETTINGS));
@@ -377,17 +410,22 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 focusTile(lastFocused % COLUMNS);
                 return true;
             }
-            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi;
+            int firstButton = (btnWallpaper != null && btnWallpaper.getVisibility() == View.VISIBLE)
+                    ? R.id.btnWallpaper : (btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi);
             int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
             int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
+        if (btnWallpaper != null) btnWallpaper.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
         if (advancedEffects) {
-            for (View button : new View[]{btnInputs, btnWifi, btnSettings}) {
+            View[] buttons = btnWallpaper != null
+                    ? new View[]{btnWallpaper, btnInputs, btnWifi, btnSettings}
+                    : new View[]{btnInputs, btnWifi, btnSettings};
+            for (View button : buttons) {
                 button.setOnFocusChangeListener((view, focused) -> view.animate()
                         .scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
                         .setDuration(160).start());
@@ -417,7 +455,55 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     .build(), vpnCallback);
         }
         // Not after recreate(): the launch intent survives it and would open the settings again.
-        if (savedInstanceState == null) openLauncherSettingsIfAsked(getIntent());
+        if (savedInstanceState == null) {
+            openLauncherSettingsIfAsked(getIntent());
+            handleLauncherActions(getIntent());
+        }
+    }
+
+    private boolean handleLauncherActions(Intent intent) {
+        if (intent == null || intent.getAction() == null) return false;
+        String action = intent.getAction();
+        if (ACTION_CYCLE_WALLPAPER.equals(action)) {
+            root.post(this::cycleWallpaper);
+            return true;
+        }
+        if (ACTION_SHOW_INPUTS.equals(action)) {
+            root.post(this::toggleInputs);
+            return true;
+        }
+        if (ACTION_LAUNCH_APP.equals(action)) {
+            String pkg = intent.getStringExtra(EXTRA_PACKAGE_NAME);
+            if (pkg != null) {
+                root.post(() -> launchPackageDirect(pkg));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void launchPackageDirect(String pkg) {
+        if (openPopup != null) {
+            openPopup.dismiss();
+            openPopup = null;
+        }
+        try {
+            Intent intent = getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+            if (intent == null) {
+                intent = getPackageManager().getLaunchIntentForPackage(pkg);
+            }
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                startActivity(intent);
+                if (advancedEffects) {
+                    overridePendingTransition(R.anim.app_open_enter, R.anim.app_open_exit);
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.cant_open, pkg), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, getString(R.string.cant_open, pkg), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean openLauncherSettingsIfAsked(Intent intent) {
@@ -442,7 +528,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (w <= 0 || h <= 0) return;
             int sample = WallpaperSize.sampleSize(w, h, dm.widthPixels, dm.heightPixels);
             // The limit applies to what is decoded, so a 12 MP photo still works once it is sampled down.
-            if (!WallpaperSize.accepted(w / sample, h / sample)) return;
+            while (!WallpaperSize.accepted(w / sample, h / sample)) {
+                sample *= 2;
+            }
             opts.inJustDecodeBounds = false;
             opts.inSampleSize = sample;
             int[] scale = WallpaperSize.coverScale(w / sample, h / sample, dm.widthPixels, dm.heightPixels);
@@ -454,13 +542,112 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             opts.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565;   // no alpha needed, half the memory
             android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(file.getPath(), opts);
             if (bmp == null) return;
-            android.widget.ImageView wall = new android.widget.ImageView(this);
-            wall.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
-            wall.setImageBitmap(bmp);
-            root.addView(wall, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            final android.widget.ImageView nextWall = new android.widget.ImageView(this);
+            nextWall.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            nextWall.setImageBitmap(bmp);
+            if (wallpaperView != null) {
+                nextWall.setAlpha(0f);
+                root.addView(nextWall, 1, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                nextWall.animate().alpha(1f).setDuration(400).withEndAction(() -> {
+                    root.removeView(wallpaperView);
+                    wallpaperView = nextWall;
+                }).start();
+            } else {
+                root.addView(nextWall, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                wallpaperView = nextWall;
+            }
         } catch (Exception | OutOfMemoryError e) {
             // A bad or huge picture must never take the home screen down; the plain colour stays.
         }
+    }
+
+    private List<File> getWallpaperList() {
+        File dir = Config.dir(this);
+        if (dir == null) return Collections.emptyList();
+        File wallpapersDir = new File(dir, "wallpapers");
+        if (!wallpapersDir.isDirectory()) return Collections.emptyList();
+        File[] files = wallpapersDir.listFiles((d, name) -> {
+            String lower = name.toLowerCase(Locale.US);
+            return (lower.endsWith(".jpg") || lower.endsWith(".png") || lower.endsWith(".jpeg")) && !lower.startsWith(".");
+        });
+        if (files == null || files.length == 0) return Collections.emptyList();
+        List<File> list = new ArrayList<>(java.util.Arrays.asList(files));
+        Collections.sort(list, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+        return list;
+    }
+
+    private static String formatWallpaperName(String filename) {
+        String base = filename.replaceAll("\\.[^.]+$", "");
+        base = base.replaceAll("-[0-9]+x[0-9]+.*$", "");
+        base = base.replace('-', ' ').replace('_', ' ');
+        String[] words = base.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (w.isEmpty()) continue;
+            sb.append(Character.toUpperCase(w.charAt(0)));
+            if (w.length() > 1) sb.append(w.substring(1).toLowerCase());
+            sb.append(" ");
+        }
+        return sb.toString().trim();
+    }
+
+    private void applyWallpaper(File file) {
+        try {
+            File dir = Config.dir(this);
+            if (dir != null) {
+                File target = new File(dir, Config.WALLPAPER_NAME);
+                try (java.io.InputStream in = new java.io.FileInputStream(file);
+                     java.io.OutputStream out = new java.io.FileOutputStream(target)) {
+                    byte[] buf = new byte[8192];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        showWallpaper(file);
+        Toast.makeText(this, formatWallpaperName(file.getName()), Toast.LENGTH_SHORT).show();
+    }
+
+    private void cycleWallpaper() {
+        if (openPopup != null) {
+            openPopup.dismiss();
+            openPopup = null;
+        }
+        List<File> list = getWallpaperList();
+        if (list.isEmpty()) {
+            Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentWallpaperIdx = (currentWallpaperIdx + 1) % list.size();
+        applyWallpaper(list.get(currentWallpaperIdx));
+    }
+
+    private void showWallpaperMenu() {
+        List<File> list = getWallpaperList();
+        if (list.isEmpty()) {
+            Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        View anchor = findViewById(R.id.btnWallpaper);
+        if (anchor == null) anchor = findViewById(R.id.btnSettings);
+        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
+        LinearLayout rows = panel.findViewById(R.id.rows);
+        PopupWindow popup = glassPopup(panel, (int) (220 * density));
+        for (int i = 0; i < list.size(); i++) {
+            File f = list.get(i);
+            final int idx = i;
+            addSettingsMenuRow(rows, popup, formatWallpaperName(f.getName()), () -> {
+                currentWallpaperIdx = idx;
+                applyWallpaper(f);
+            });
+        }
+        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popup.setWidth(Math.max((int) (220 * density), panel.getMeasuredWidth()));
+        dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar)
+                ? Gravity.START : Gravity.END);
+        rows.getChildAt(currentWallpaperIdx % list.size()).requestFocus();
     }
 
     /**
@@ -472,6 +659,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (openLauncherSettingsIfAsked(intent)) return;
+        if (handleLauncherActions(intent)) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         long now = android.os.SystemClock.uptimeMillis();
         android.util.Log.e("AppleTv.HomeKey", "onNewIntent: delta=" + (now - lastHomePressTime));
@@ -578,6 +766,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         final List<Cards.Card> none = Collections.emptyList();
         cards = moduleCards ? CardFeature.run(() -> Cards.discover(this, hiddenApps, Cards.load(Cards.storeFile(this))), none) : none;
         adapter.reload(cards.isEmpty() ? none : CardFeature.run(() -> Cards.shown(cards), none));
+        grid.requestLayout();
         lastFocusedKey = returnKey;
         lastFocused = returnSlot;
     }
@@ -706,7 +895,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View item = (View) card.getParent();
         if (position < COLUMNS) {
             // Dock: park it at the bottom of the screen and show the top shelf for this app.
-            int decoratedTop = item.getTop() - (int) (6 * density);
+            int decoratedTop = item.getTop() - (int) (12 * density);
             int dy = decoratedTop - grid.getPaddingTop();
             // A 1px mismatch used to start a scroll on every dock move. Only scroll when the row is
             // actually off; reduced motion does it in one jump so it does not fight the highlight.
@@ -1185,8 +1374,29 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         open(new Intent(inputAction).setDataAndType(uri, "vnd.android.cursor.item/channel"));
     }
 
+    private long lastPopupDismissTime = 0;
+
+    private void toggleInputs() {
+        long now = android.os.SystemClock.uptimeMillis();
+        if (openPopup != null) {
+            openPopup.dismiss();
+            openPopup = null;
+            lastPopupDismissTime = now;
+            return;
+        }
+        if (now - lastPopupDismissTime < 1500) {
+            return;
+        }
+        showInputs();
+    }
+
     /** Dropdown menu under the Inputs pill: HDMI ports (with connection state), AV and Live TV. */
     private void showInputs() {
+        if (openPopup != null) {
+            openPopup.dismiss();
+            openPopup = null;
+            return;
+        }
         View anchor = findViewById(R.id.btnInputs);
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
@@ -1276,6 +1486,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         popup.setAnimationStyle(0);
         popup.setElevation(0f);
         popup.setOnDismissListener(() -> {
+            lastPopupDismissTime = android.os.SystemClock.uptimeMillis();
             if (openPopup == popup) openPopup = null;
         });
         openPopup = popup;
@@ -1324,6 +1535,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             popup.dismiss();
             action.run();
         });
+        row.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == 178 || keyCode == KeyEvent.KEYCODE_TV_INPUT) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    popup.dismiss();
+                }
+                return true;
+            }
+            return false;
+        });
         rows.addView(row);
     }
 
@@ -1347,6 +1567,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void addSettingsMenuRow(LinearLayout rows, PopupWindow popup, int title, Runnable action) {
+        addSettingsMenuRow(rows, popup, getString(title), action);
+    }
+
+    private void addSettingsMenuRow(LinearLayout rows, PopupWindow popup, CharSequence title, Runnable action) {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
         row.findViewById(R.id.icon).setVisibility(View.GONE);
         row.findViewById(R.id.dot).setVisibility(View.GONE);
