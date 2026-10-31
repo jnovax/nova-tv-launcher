@@ -108,6 +108,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean heroShown;
     private boolean animations;
     private boolean advancedEffects;
+    private boolean ambientGlow;
     private TextView greeting;
     private View btnInputs;
     private TextView btnWifi;
@@ -222,6 +223,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         COLUMNS = cfg.columns;
         animations = cfg.animations;
         advancedEffects = cfg.animations && cfg.advancedEffects;
+        ambientGlow = cfg.ambientGlow;
         reducedMotion = cfg.reducedMotion;
         festival = cfg.festival;
         festive = festival.active(LocalDate.now());
@@ -239,6 +241,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         glass = findViewById(R.id.glass);
         if (festive) glass.setAccent(festival.accentColor());
         ambient = findViewById(R.id.ambient);
+        if (!ambientGlow) {
+            ambient.setVisibility(View.GONE);
+        }
         // The glow is one bitmap, so its alpha can be applied while drawing it. Otherwise every frame of
         // a fade renders it into a full-screen offscreen buffer first.
         ambient.forceHasOverlappingRendering(false);
@@ -931,13 +936,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             heroName.setY(y);
             heroName.setTranslationX(0f);
             heroName.setAlpha(1f);
-            setAmbient(color);
-            if (!animations) {
-                ambient.setAlpha(1f);
-                heroShown = true;
-            } else if (!heroShown) {
+            if (ambientGlow) {
+                setAmbient(color);
+                if (!animations) {
+                    ambient.setAlpha(1f);
+                    heroShown = true;
+                } else if (!heroShown) {
+                    ambient.setAlpha(0f);
+                    ambient.animate().alpha(1f).setDuration(160).start();
+                    heroShown = true;
+                }
+            } else {
                 ambient.setAlpha(0f);
-                ambient.animate().alpha(1f).setDuration(160).start();
                 heroShown = true;
             }
             return;
@@ -951,8 +961,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             heroName.setY(y);
             heroName.setTranslationX(0f);
             heroName.animate().alpha(1f).setDuration(260).start();
-            setAmbient(color);
-            ambient.animate().alpha(1f).setDuration(600).start();
+            if (ambientGlow) {
+                setAmbient(color);
+                ambient.animate().alpha(1f).setDuration(600).start();
+            } else {
+                ambient.setAlpha(0f);
+            }
             heroShown = true;
         } else if (changed) {
             if (advancedEffects) heroName.animate().cancel();
@@ -962,13 +976,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 heroName.setTranslationX(12 * density);
                 heroName.animate().alpha(1f).translationX(0f).setDuration(200).start();
             }).start();
-            if (advancedEffects) {
-                transitionAmbient(color);
-            } else if (color != ambientColor) {
-                ambient.animate().alpha(0.35f).setDuration(200).withEndAction(() -> {
-                    setAmbient(color);
-                    ambient.animate().alpha(1f).setDuration(500).start();
-                }).start();
+            if (ambientGlow) {
+                if (advancedEffects) {
+                    transitionAmbient(color);
+                } else if (color != ambientColor) {
+                    ambient.animate().alpha(0.35f).setDuration(200).withEndAction(() -> {
+                        setAmbient(color);
+                        ambient.animate().alpha(1f).setDuration(500).start();
+                    }).start();
+                }
+            } else {
+                ambient.setAlpha(0f);
             }
         } else {
             heroName.setY(y);
@@ -983,6 +1001,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * so changing apps neither repaints it on the CPU (about 11 ms) nor uploads it again.
      */
     private void setAmbient(int color) {
+        if (!ambientGlow) return;
         if (color == ambientColor && ambient.getBackground() != null) return;
         ambientColor = color;
         BitmapDrawable glow = (BitmapDrawable) ambient.getBackground();
@@ -1007,6 +1026,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void transitionAmbient(int color) {
+        if (!ambientGlow) return;
         // A rapid focus change continues from the colour actually displayed on screen.
         stopAmbientAnimation();
         ambient.animate().cancel();
@@ -1040,6 +1060,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void updateAmbientForTile(int color) {
+        if (!ambientGlow) {
+            ambient.setAlpha(0f);
+            return;
+        }
         if (!animations || reducedMotion) {
             ambient.animate().cancel();
             setAmbient(color);
@@ -1064,7 +1088,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroShown = false;
         if (animations) {
             heroName.animate().alpha(0f).setDuration(reducedMotion ? 100 : 160).start();
-            ambient.animate().alpha(0f).setDuration(reducedMotion ? 140 : 300).start();
+            if (ambientGlow) ambient.animate().alpha(0f).setDuration(reducedMotion ? 140 : 300).start();
+            else ambient.setAlpha(0f);
         } else {
             heroName.setAlpha(0f);
             ambient.setAlpha(0f);
