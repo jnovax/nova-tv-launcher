@@ -46,14 +46,45 @@
         android:orientation="vertical"
         android:paddingTop="25dp">
 
-        <!-- Header row, end-aligned: [greeting · date] [menu bar platter: clock | controls]. -->
+        <!-- Header row: [wallpaper banner] [leftBlock: greeting · date] [menu bar platter: clock | controls]. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="45dp"
             android:layout_marginEnd="25dp"
             android:orientation="horizontal"
-            android:gravity="end|center_vertical">
+            android:gravity="center_vertical">
+
+            <!-- Wallpaper name badge at top-left corner (matches menu bar height) -->
+            <LinearLayout
+                android:id="@+id/wallpaperBanner"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tvos_menubar_height"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/glass_pill_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="15dp"
+                android:alpha="0"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_picture"
+                    android:tint="#BFFFFFFF"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/wallpaperBannerText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:singleLine="true" />
+            </LinearLayout>
 
             <!-- The header texts keep gravity right (not end): the launcher lays out left to right (no
                  supportsRtl), so a right-to-left script still hugs the menu bar. -->

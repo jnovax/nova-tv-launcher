@@ -621,7 +621,34 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     .apply();
         } catch (Exception ignored) {}
         showWallpaper(file);
-        Toast.makeText(this, formatWallpaperName(file.getName()), Toast.LENGTH_SHORT).show();
+        showWallpaperBanner(formatWallpaperName(file.getName()));
+    }
+
+    private Runnable hideWallpaperBannerRunnable;
+
+    private void showWallpaperBanner(String name) {
+        View banner = findViewById(R.id.wallpaperBanner);
+        TextView tv = findViewById(R.id.wallpaperBannerText);
+        if (banner == null || tv == null) return;
+
+        tv.setText(name);
+
+        if (hideWallpaperBannerRunnable != null) {
+            root.removeCallbacks(hideWallpaperBannerRunnable);
+        }
+
+        banner.animate().cancel();
+        banner.setTranslationY(-10f);
+        banner.setAlpha(0f);
+        banner.setVisibility(View.VISIBLE);
+        banner.animate().alpha(1f).translationY(0f).setDuration(240).start();
+
+        hideWallpaperBannerRunnable = () -> {
+            banner.animate().alpha(0f).translationY(-10f).setDuration(300).withEndAction(() -> {
+                banner.setVisibility(View.GONE);
+            }).start();
+        };
+        root.postDelayed(hideWallpaperBannerRunnable, 3000);
     }
 
     private File getActiveWallpaperFile(List<File> list) {
