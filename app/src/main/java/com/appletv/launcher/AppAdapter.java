@@ -94,11 +94,11 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
      * highlight, capped at the design size so 4 columns on a 1080p TV look exactly as before.
      */
     static int tileWidthPx(int innerWidthPx, int columns, float density) {
-        int design = Math.round(DESIGN_W_DP * density);
-        if (innerWidthPx <= 0 || columns <= 0) return design;
+        if (innerWidthPx <= 0 || columns <= 0) return Math.round(DESIGN_W_DP * density);
         int cell = innerWidthPx / columns;
-        int fit = (int) ((cell - 16 * density) / FOCUS_SCALE);
-        return Math.max(Math.round(80 * density), Math.min(design, fit));
+        int gap = Math.round(26f * density);
+        int w = cell - gap;
+        return Math.max(Math.round(80 * density), w);
     }
 
     static int tileHeightPx(int tileWidthPx) {
@@ -236,7 +236,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         nameLp.width = w;
         nameLp.topMargin = h + Math.round(7 * density);
         name.setLayoutParams(nameLp);
-        return new Holder(v, listener, animations, advancedEffects, reducedMotion);
+        return new Holder(v, this, listener, animations, advancedEffects, reducedMotion);
     }
 
     @Override
@@ -261,7 +261,19 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.name.setAlpha(focused ? 1f : 0f);
         h.card.setScaleX(focused && animations ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused && animations ? FOCUS_SCALE : 1f);
-        h.card.setTranslationY(focused ? -3f * ctx.getResources().getDisplayMetrics().density : 0f);
+        int dockCount = dockFilled();
+        boolean isLeftmost = (position == 0);
+        boolean isRightmost = (position == dockCount - 1);
+        int w = h.card.getLayoutParams().width;
+        int height = h.card.getLayoutParams().height;
+        float shiftX = 0f;
+        if (isLeftmost) {
+            shiftX = (FOCUS_SCALE - 1f) * (w - height) / 2f;
+        } else if (isRightmost) {
+            shiftX = -(FOCUS_SCALE - 1f) * (w - height) / 2f;
+        }
+        h.card.setTranslationX(focused ? shiftX : 0f);
+        h.card.setTranslationY(0f);
         h.card.setTranslationZ(focused ? 12f * ctx.getResources().getDisplayMetrics().density : 0f);
         h.banner.setScaleX(1f);
         h.banner.setScaleY(1f);
@@ -422,13 +434,15 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         final ImageView icon;
         final TextView label;
         final TextView name;
+        final AppAdapter adapter;
         final boolean animations;
         final boolean advancedEffects;
         final boolean reducedMotion;
 
-        Holder(View v, TileListener listener, boolean animations, boolean advancedEffects,
+        Holder(View v, AppAdapter adapter, TileListener listener, boolean animations, boolean advancedEffects,
                boolean reducedMotion) {
             super(v);
+            this.adapter = adapter;
             card = v.findViewById(R.id.card);
             banner = v.findViewById(R.id.banner);
             icon = v.findViewById(R.id.icon);
@@ -461,18 +475,33 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                 name.animate().cancel();
                 float scale = !animations ? 1f : FOCUS_SCALE;
                 float s = focused ? scale : 1f;
-                float liftY = focused ? -3f * density : 0f;
+                int pos = getBindingAdapterPosition();
+                int dockCount = adapter != null ? adapter.dockFilled() : 5;
+                boolean isLeftmost = (pos == 0);
+                boolean isRightmost = (pos == dockCount - 1);
+                int cardW = card.getWidth() > 0 ? card.getWidth() : card.getLayoutParams().width;
+                int cardH = card.getHeight() > 0 ? card.getHeight() : card.getLayoutParams().height;
+                float diff = (cardW - cardH);
+                float shiftX = 0f;
+                if (isLeftmost) {
+                    shiftX = (FOCUS_SCALE - 1f) * diff / 2f;
+                } else if (isRightmost) {
+                    shiftX = -(FOCUS_SCALE - 1f) * diff / 2f;
+                }
+                float targetShiftX = focused ? shiftX : 0f;
                 float liftZ = focused ? 12f * density : 0f;
                 if (!animations) {
                     view.setScaleX(s);
                     view.setScaleY(s);
-                    view.setTranslationY(liftY);
+                    view.setTranslationX(targetShiftX);
+                    view.setTranslationY(0f);
                     view.setTranslationZ(liftZ);
                     name.setAlpha(focused ? 1f : 0f);
                     name.setTranslationY(0f);
                 } else if (reducedMotion) {
                     view.animate().scaleX(s).scaleY(s)
-                            .translationY(liftY)
+                            .translationX(targetShiftX)
+                            .translationY(0f)
                             .translationZ(liftZ)
                             .setDuration(focused ? 120 : 80)
                             .setInterpolator(new DecelerateInterpolator())
@@ -480,7 +509,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                     name.animate().alpha(focused ? 1f : 0f).setDuration(100).start();
                 } else {
                     view.animate().scaleX(s).scaleY(s)
-                            .translationY(liftY)
+                            .translationX(targetShiftX)
+                            .translationY(0f)
                             .translationZ(liftZ)
                             .setDuration(focused ? 240 : 180)
                             .setInterpolator(focused ? new PathInterpolator(0.32f, 1.25f, 0.42f, 1.0f) : new PathInterpolator(0.25f, 0.1f, 0.25f, 1.0f))
@@ -489,7 +519,6 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                             .translationY(focused ? density * 4f : -density * 6f)
                             .setDuration(220).start();
                 }
-                int pos = getBindingAdapterPosition();
                 if (focused && listener != null && pos != RecyclerView.NO_POSITION) {
                     listener.onTileFocused(pos, view);
                 }

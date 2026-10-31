@@ -319,9 +319,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 int totalApps = adapter != null ? adapter.getAppCount() : 5;
                 if (totalApps <= 6) {
                     // When <= 6 apps (dock only, no apps below to scroll down to),
-                    // the bottom margin of the dock platter equals the left/right screen margin.
-                    int sideMargin = grid.getPaddingLeft() - (int) (12 * density);
-                    int targetTop = h - tileH - (int) (32 * density) - sideMargin;
+                    // dock bottom sits gracefully above the bottom screen edge.
+                    int targetTop = h - tileH - (int) (82 * density);
                     want = Math.max((int) (80 * density), targetTop);
                 } else {
                     // When > 6 apps, keep the larger bottom margin so users see/hint at rows below.

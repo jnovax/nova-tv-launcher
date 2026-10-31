@@ -39,31 +39,79 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        boolean any = false;
-        float minT = Float.MAX_VALUE;
-        float maxB = Float.MIN_VALUE;
+        View firstChild = null;
+        View secondChild = null;
+        View lastChild = null;
+        int minPos = Integer.MAX_VALUE;
+        int maxPos = Integer.MIN_VALUE;
+
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(child);
             if (pos < 0 || pos >= dockSize) continue;
+            if (child.getVisibility() != View.VISIBLE) continue;
             View card = child.findViewById(R.id.card);
-            if (card == null) continue;
-            float t = child.getTop() + card.getTop() + child.getTranslationY();
-            float b = t + card.getHeight();
-            minT = Math.min(minT, t);
-            maxB = Math.max(maxB, b);
-            any = true;
-        }
-        if (!any) return;
+            if (card == null || card.getVisibility() != View.VISIBLE) continue;
 
-        float l = parent.getPaddingLeft() - (12 * density);
-        float r = parent.getWidth() - parent.getPaddingRight() + (12 * density);
-        float padY = 20 * density;
-        float t = minT - padY;
-        float b = maxB + padY;
+            if (pos < minPos) {
+                minPos = pos;
+                firstChild = child;
+            }
+            if (pos > maxPos) {
+                maxPos = pos;
+                lastChild = child;
+            }
+        }
+        if (firstChild == null || lastChild == null) return;
+
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            int pos = parent.getChildAdapterPosition(child);
+            if (pos == minPos + 1 && child.getVisibility() == View.VISIBLE) {
+                secondChild = child;
+                break;
+            }
+        }
+
+        View firstCard = firstChild.findViewById(R.id.card);
+        View lastCard = lastChild.findViewById(R.id.card);
+        if (firstCard == null || lastCard == null) return;
+
+        float cardW = firstCard.getWidth();
+        float cardH = firstCard.getHeight();
+        if (cardW <= 0 || cardH <= 0) return;
+
+        // Unhovered layout coordinates in parent space
+        float card0Left = firstChild.getLeft() + firstCard.getLeft();
+        float cardLastRight = lastChild.getLeft() + lastCard.getRight();
+        float cardTop = firstChild.getTop() + firstCard.getTop();
+        float cardBottom = cardTop + cardH;
+
+        float gap;
+        if (secondChild != null) {
+            View secondCard = secondChild.findViewById(R.id.card);
+            float card1Left = secondChild.getLeft() + secondCard.getLeft();
+            float card0Right = card0Left + cardW;
+            gap = card1Left - card0Right;
+        } else {
+            gap = 26f * density;
+        }
+        if (gap <= 0) {
+            gap = 26f * density;
+        }
+
+        // Distance(Dock Left -> Card 0) = gap
+        // Distance(Card Last -> Dock Right) = gap
+        // Distance(Dock Top -> Card Top) = gap
+        // Distance(Card Bottom -> Dock Bottom) = gap
+        float l = card0Left - gap;
+        float r = cardLastRight + gap;
+        float t = cardTop - gap;
+        float b = cardBottom + gap;
 
         rect.set(l, t, r, b);
-        float radius = 28 * density;
+        float cardRadius = AppAdapter.cornerRadius((int) cardW, density);
+        float radius = cardRadius + gap * 0.5f;
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
     }
