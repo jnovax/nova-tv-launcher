@@ -225,11 +225,4 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- The single floating glass highlight that springs between tiles. -->
-    <com.appletv.launcher.GlassView
-        android:id="@+id/glass"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:alpha="0"
-        android:importantForAccessibility="no" />
 </FrameLayout>

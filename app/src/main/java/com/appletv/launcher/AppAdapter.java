@@ -259,12 +259,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.name.setVisibility(position < dockSize ? View.INVISIBLE : View.VISIBLE);   // the dock has no labels
         boolean focused = h.card.isFocused();   // a rebind after reload() can hit the focused tile
         h.name.setAlpha(focused ? 1f : 0f);
-        h.card.setScaleX(focused && animations ? focusScale() : 1f);
-        h.card.setScaleY(focused && animations ? focusScale() : 1f);
-        h.card.setTranslationY(focused && advancedEffects ? -4f * ctx.getResources().getDisplayMetrics().density : 0f);
-        h.card.setTranslationZ(focused && advancedEffects ? 8f * ctx.getResources().getDisplayMetrics().density : 0f);
-        h.banner.setScaleX(focused && advancedEffects ? 1.035f : 1f);
-        h.banner.setScaleY(focused && advancedEffects ? 1.035f : 1f);
+        h.card.setScaleX(focused && animations ? FOCUS_SCALE : 1f);
+        h.card.setScaleY(focused && animations ? FOCUS_SCALE : 1f);
+        h.card.setTranslationY(focused ? -3f * ctx.getResources().getDisplayMetrics().density : 0f);
+        h.card.setTranslationZ(focused ? 12f * ctx.getResources().getDisplayMetrics().density : 0f);
+        h.banner.setScaleX(1f);
+        h.banner.setScaleY(1f);
         if (e.banner != null) {
             h.banner.setImageDrawable(e.banner);
             h.banner.setVisibility(View.VISIBLE);
@@ -358,7 +358,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     float focusScale() {
-        return !animations ? 1f : advancedEffects ? 1.12f : 1.10f;
+        return !animations ? 1f : FOCUS_SCALE;
     }
 
     /** A vivid colour sampled from the app's banner (or icon), cached per entry; a card's accent when it set one. */
@@ -458,38 +458,33 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
             card.setOnFocusChangeListener((view, focused) -> {
                 view.animate().cancel();
-                banner.animate().cancel();
                 name.animate().cancel();
-                float scale = !animations ? 1f : advancedEffects ? 1.25f : 1.2267f;
+                float scale = !animations ? 1f : FOCUS_SCALE;
                 float s = focused ? scale : 1f;
+                float liftY = focused ? -3f * density : 0f;
+                float liftZ = focused ? 12f * density : 0f;
                 if (!animations) {
-                    view.setScaleX(1f);
-                    view.setScaleY(1f);
-                    view.setTranslationY(0f);
-                    view.setTranslationZ(0f);
-                    banner.setScaleX(1f);
-                    banner.setScaleY(1f);
+                    view.setScaleX(s);
+                    view.setScaleY(s);
+                    view.setTranslationY(liftY);
+                    view.setTranslationZ(liftZ);
                     name.setAlpha(focused ? 1f : 0f);
                     name.setTranslationY(0f);
                 } else if (reducedMotion) {
                     view.animate().scaleX(s).scaleY(s)
-                            .translationY(focused && advancedEffects ? -4f * density : 0f)
-                            .translationZ(focused && advancedEffects ? 8f * density : 0f)
+                            .translationY(liftY)
+                            .translationZ(liftZ)
                             .setDuration(focused ? 120 : 80)
                             .setInterpolator(new DecelerateInterpolator())
                             .withLayer().start();
                     name.animate().alpha(focused ? 1f : 0f).setDuration(100).start();
                 } else {
                     view.animate().scaleX(s).scaleY(s)
-                            .translationY(focused && advancedEffects ? -4f * density : 0f)
-                            .translationZ(focused && advancedEffects ? 8f * density : 0f)
-                            .setDuration(advancedEffects ? (focused ? 220 : 170) : (focused ? 260 : 180))
-                            .setInterpolator(focused ? new PathInterpolator(0.32f, 1.28f, 0.42f, 1.0f) : new PathInterpolator(0.25f, 0.1f, 0.25f, 1.0f))
+                            .translationY(liftY)
+                            .translationZ(liftZ)
+                            .setDuration(focused ? 240 : 180)
+                            .setInterpolator(focused ? new PathInterpolator(0.32f, 1.25f, 0.42f, 1.0f) : new PathInterpolator(0.25f, 0.1f, 0.25f, 1.0f))
                             .withLayer().start();
-                    if (advancedEffects) {
-                        banner.animate().scaleX(focused ? 1.035f : 1f).scaleY(focused ? 1.035f : 1f)
-                                .setDuration(280).start();
-                    }
                     name.animate().alpha(focused ? 1f : 0f)
                             .translationY(focused ? density * 4f : -density * 6f)
                             .setDuration(220).start();
