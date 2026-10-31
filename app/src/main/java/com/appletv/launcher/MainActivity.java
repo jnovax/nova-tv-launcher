@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -88,7 +89,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     static final String ACTION_LAUNCH_APP = "com.appletv.launcher.action.LAUNCH_APP";
     static final String EXTRA_PACKAGE_NAME = "com.appletv.launcher.extra.PACKAGE_NAME";
     private android.widget.ImageView wallpaperView;
-    private int currentWallpaperIdx = 0;
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
     private boolean rtlAppGrid;
@@ -616,9 +616,43 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     }
                 }
             }
+            getSharedPreferences("wallpaper_prefs", MODE_PRIVATE).edit()
+                    .putString("active_wallpaper_file", file.getName())
+                    .apply();
         } catch (Exception ignored) {}
         showWallpaper(file);
         Toast.makeText(this, formatWallpaperName(file.getName()), Toast.LENGTH_SHORT).show();
+    }
+
+    private File getActiveWallpaperFile(List<File> list) {
+        if (list == null || list.isEmpty()) return null;
+        SharedPreferences prefs = getSharedPreferences("wallpaper_prefs", MODE_PRIVATE);
+        String savedName = prefs.getString("active_wallpaper_file", null);
+        File dir = Config.dir(this);
+        File currentWall = dir != null ? new File(dir, Config.WALLPAPER_NAME) : null;
+        long currentLen = (currentWall != null && currentWall.isFile()) ? currentWall.length() : -1;
+
+        if (savedName != null) {
+            for (File f : list) {
+                if (f.getName().equalsIgnoreCase(savedName)) {
+                    if (currentLen <= 0 || f.length() == currentLen) {
+                        return f;
+                    }
+                }
+            }
+        }
+
+        // Match by file size of current wallpaper.jpg
+        if (currentLen > 0) {
+            for (File f : list) {
+                if (f.length() == currentLen) {
+                    prefs.edit().putString("active_wallpaper_file", f.getName()).apply();
+                    return f;
+                }
+            }
+        }
+
+        return list.get(0);
     }
 
     private void cycleWallpaper() {
@@ -631,8 +665,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
             return;
         }
-        currentWallpaperIdx = (currentWallpaperIdx + 1) % list.size();
-        applyWallpaper(list.get(currentWallpaperIdx));
+        File active = getActiveWallpaperFile(list);
+        int idx = list.indexOf(active);
+        int nextIdx = (idx >= 0) ? (idx + 1) % list.size() : 0;
+        applyWallpaper(list.get(nextIdx));
     }
 
     private void showWallpaperMenu() {
@@ -650,6 +686,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return;
         }
 
+        File activeFile = getActiveWallpaperFile(list);
+        String activeName = activeFile != null ? activeFile.getName() : null;
+        int activeIndex = activeFile != null ? list.indexOf(activeFile) : 0;
+        if (activeIndex < 0) activeIndex = 0;
+
         View panel = getLayoutInflater().inflate(R.layout.popup_wallpaper_grid, root, false);
         final PopupWindow popup = new PopupWindow(panel, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -665,15 +706,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             hintView.setText(list.size() + " 4K UHD Wallpapers • Press OK to apply • BACK to exit");
         }
 
-        File currentFile = (currentWallpaperIdx >= 0 && currentWallpaperIdx < list.size()) ? list.get(currentWallpaperIdx) : null;
-        String currentName = currentFile != null ? currentFile.getName() : null;
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recycler.setLayoutManager(layoutManager);
 
-        recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        final WallpaperPickerAdapter adapter = new WallpaperPickerAdapter(list, currentName, new WallpaperPickerAdapter.OnWallpaperActionListener() {
+        final WallpaperPickerAdapter adapter = new WallpaperPickerAdapter(list, activeName, new WallpaperPickerAdapter.OnWallpaperActionListener() {
             @Override
             public void onWallpaperFocused(File file, int position) {
-                currentWallpaperIdx = position;
                 if (titleView != null) {
                     titleView.setText(WallpaperPickerAdapter.formatDisplayName(file.getName()));
                 }
@@ -681,7 +719,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
             @Override
             public void onWallpaperSelected(File file, int position) {
-                currentWallpaperIdx = position;
                 applyWallpaper(file);
                 popup.dismiss();
             }
@@ -707,20 +744,28 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         openPopup = popup;
         popup.showAtLocation(root, Gravity.CENTER, 0, 0);
 
-        // Pre-focus active or first wallpaper
-        int targetIdx = Math.max(0, Math.min(currentWallpaperIdx, list.size() - 1));
+        final int targetIdx = activeIndex;
         if (titleView != null) {
             titleView.setText(WallpaperPickerAdapter.formatDisplayName(list.get(targetIdx).getName()));
         }
+
+        int screenW = getResources().getDisplayMetrics().widthPixels;
+        int cardW = (int) (240 * density);
+        int centerOffset = Math.max(0, (screenW - cardW) / 2);
+
+        layoutManager.scrollToPositionWithOffset(targetIdx, centerOffset);
+
         recycler.post(() -> {
-            recycler.scrollToPosition(targetIdx);
+            layoutManager.scrollToPositionWithOffset(targetIdx, centerOffset);
             recycler.postDelayed(() -> {
                 RecyclerView.ViewHolder vh = recycler.findViewHolderForAdapterPosition(targetIdx);
                 if (vh != null) {
                     View holder = vh.itemView.findViewById(R.id.cardHolder);
                     if (holder != null) holder.requestFocus();
+                } else {
+                    recycler.scrollToPosition(targetIdx);
                 }
-            }, 80);
+            }, 60);
         });
     }
 
