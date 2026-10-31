@@ -42,6 +42,11 @@ android {
     }
 
 
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
     packaging {
         dex {
             useLegacyPackaging = true

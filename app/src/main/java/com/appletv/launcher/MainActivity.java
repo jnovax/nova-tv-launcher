@@ -61,6 +61,7 @@ import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
     static final String ACTION_LAUNCHER_SETTINGS = "com.appletv.launcher.action.LAUNCHER_SETTINGS";
     static final String ACTION_CYCLE_WALLPAPER = "com.appletv.launcher.action.CYCLE_WALLPAPER";
+    static final String ACTION_SHOW_WALLPAPERS = "com.appletv.launcher.action.SHOW_WALLPAPERS";
     static final String ACTION_SHOW_INPUTS = "com.appletv.launcher.action.SHOW_INPUTS";
     static final String ACTION_LAUNCH_APP = "com.appletv.launcher.action.LAUNCH_APP";
     static final String EXTRA_PACKAGE_NAME = "com.appletv.launcher.extra.PACKAGE_NAME";
@@ -386,9 +388,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
         if (btnWallpaper != null) {
-            btnWallpaper.setOnClickListener(v -> cycleWallpaper());
+            btnWallpaper.setOnClickListener(v -> showWallpaperPickerGrid());
             btnWallpaper.setOnLongClickListener(v -> {
-                showWallpaperMenu();
+                cycleWallpaper();
                 return true;
             });
         }
@@ -471,6 +473,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String action = intent.getAction();
         if (ACTION_CYCLE_WALLPAPER.equals(action)) {
             root.post(this::cycleWallpaper);
+            return true;
+        }
+        if (ACTION_SHOW_WALLPAPERS.equals(action)) {
+            root.post(this::showWallpaperPickerGrid);
             return true;
         }
         if (ACTION_SHOW_INPUTS.equals(action)) {
@@ -630,29 +636,92 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void showWallpaperMenu() {
+        showWallpaperPickerGrid();
+    }
+
+    private void showWallpaperPickerGrid() {
+        if (openPopup != null) {
+            openPopup.dismiss();
+            openPopup = null;
+        }
         List<File> list = getWallpaperList();
         if (list.isEmpty()) {
             Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
             return;
         }
-        View anchor = findViewById(R.id.btnWallpaper);
-        if (anchor == null) anchor = findViewById(R.id.btnSettings);
-        View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
-        LinearLayout rows = panel.findViewById(R.id.rows);
-        PopupWindow popup = glassPopup(panel, (int) (220 * density));
-        for (int i = 0; i < list.size(); i++) {
-            File f = list.get(i);
-            final int idx = i;
-            addSettingsMenuRow(rows, popup, formatWallpaperName(f.getName()), () -> {
-                currentWallpaperIdx = idx;
-                applyWallpaper(f);
-            });
+
+        View panel = getLayoutInflater().inflate(R.layout.popup_wallpaper_grid, root, false);
+        final PopupWindow popup = new PopupWindow(panel, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+        popup.setAnimationStyle(0);
+
+        final TextView titleView = panel.findViewById(R.id.wallpaperFocusedTitle);
+        final TextView hintView = panel.findViewById(R.id.wallpaperHint);
+        final RecyclerView recycler = panel.findViewById(R.id.wallpaperRecycler);
+
+        if (hintView != null) {
+            hintView.setText(list.size() + " 4K UHD Wallpapers • Press OK to apply • BACK to exit");
         }
-        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        popup.setWidth(Math.max((int) (220 * density), panel.getMeasuredWidth()));
-        dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar)
-                ? Gravity.START : Gravity.END);
-        rows.getChildAt(currentWallpaperIdx % list.size()).requestFocus();
+
+        File currentFile = (currentWallpaperIdx >= 0 && currentWallpaperIdx < list.size()) ? list.get(currentWallpaperIdx) : null;
+        String currentName = currentFile != null ? currentFile.getName() : null;
+
+        recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        final WallpaperPickerAdapter adapter = new WallpaperPickerAdapter(list, currentName, new WallpaperPickerAdapter.OnWallpaperActionListener() {
+            @Override
+            public void onWallpaperFocused(File file, int position) {
+                currentWallpaperIdx = position;
+                if (titleView != null) {
+                    titleView.setText(WallpaperPickerAdapter.formatDisplayName(file.getName()));
+                }
+            }
+
+            @Override
+            public void onWallpaperSelected(File file, int position) {
+                currentWallpaperIdx = position;
+                applyWallpaper(file);
+                popup.dismiss();
+            }
+        });
+
+        recycler.setAdapter(adapter);
+
+        panel.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                popup.dismiss();
+                return true;
+            }
+            return false;
+        });
+
+        popup.setOnDismissListener(() -> {
+            lastPopupDismissTime = android.os.SystemClock.uptimeMillis();
+            if (openPopup == popup) openPopup = null;
+            adapter.cleanup();
+            recycler.setAdapter(null);
+        });
+
+        openPopup = popup;
+        popup.showAtLocation(root, Gravity.CENTER, 0, 0);
+
+        // Pre-focus active or first wallpaper
+        int targetIdx = Math.max(0, Math.min(currentWallpaperIdx, list.size() - 1));
+        if (titleView != null) {
+            titleView.setText(WallpaperPickerAdapter.formatDisplayName(list.get(targetIdx).getName()));
+        }
+        recycler.post(() -> {
+            recycler.scrollToPosition(targetIdx);
+            recycler.postDelayed(() -> {
+                RecyclerView.ViewHolder vh = recycler.findViewHolderForAdapterPosition(targetIdx);
+                if (vh != null) {
+                    View holder = vh.itemView.findViewById(R.id.cardHolder);
+                    if (holder != null) holder.requestFocus();
+                }
+            }, 80);
+        });
     }
 
     /**

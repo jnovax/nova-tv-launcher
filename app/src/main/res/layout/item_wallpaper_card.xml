@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="18dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/cardHolder"
+        android:layout_width="220dp"
+        android:layout_height="124dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:clipChildren="false">
+
+        <!-- Outer White Focus Ring (tvOS standard) -->
+        <View
+            android:id="@+id/focusRing"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="-4dp"
+            android:background="@drawable/tvos_focus_ring"
+            android:visibility="invisible" />
+
+        <!-- Card Container with rounded corners -->
+        <FrameLayout
+            android:id="@+id/cardContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/wallpaper_card_bg"
+            android:elevation="6dp">
+
+            <!-- Thumbnail Image -->
+            <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null" />
+
+            <!-- Bottom Shade Gradient -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/wallpaper_card_gradient" />
+
+            <!-- Current Active Badge -->
+            <TextView
+                android:id="@+id/badgeActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/glass_pill_bg"
+                android:paddingStart="7dp"
+                android:paddingEnd="7dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="ACTIVE"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:fontFamily="sans-serif-black"
+                android:visibility="gone" />
+
+            <!-- Wallpaper Label -->
+            <TextView
+                android:id="@+id/cardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="8dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium" />
+        </FrameLayout>
+    </FrameLayout>
+</FrameLayout>

@@ -113,6 +113,8 @@ public class HomeKeyService extends AccessibilityService {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if ("action:inputs".equalsIgnoreCase(target) || "inputs".equalsIgnoreCase(target)) {
             intent.setAction(MainActivity.ACTION_SHOW_INPUTS);
+        } else if ("action:wallpaper_picker".equalsIgnoreCase(target) || "wallpaper_picker".equalsIgnoreCase(target)) {
+            intent.setAction(MainActivity.ACTION_SHOW_WALLPAPERS);
         } else if ("action:wallpaper".equalsIgnoreCase(target) || "wallpaper".equalsIgnoreCase(target)) {
             intent.setAction(MainActivity.ACTION_CYCLE_WALLPAPER);
         } else {
