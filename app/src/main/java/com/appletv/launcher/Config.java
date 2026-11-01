@@ -68,7 +68,7 @@ final class Config {
     /** Full-screen picture behind the launcher, or null for the plain colour. */
     final File wallpaper;
     final int dockPaddingTop;
-    final Map<Integer, String> keyMappings;
+    final Map<Integer, String> remoteKeys;
     /** Whether the overlay file was present and parsed. */
     final boolean overlayApplied;
     /** Festive skin from a theme (festival, festival_until, greeting, accent_color); {@link Festival#NONE} if none. */
@@ -80,7 +80,7 @@ final class Config {
                    boolean shamsiDate, boolean moduleCards, boolean reducedMotion, String vpnApp,
                    boolean showHomeSettingsShortcut, int backgroundColor, int skyIntensity,
                    int[] settingsKeycodes, boolean settingsKeyPanel, File wallpaper, int dockPaddingTop,
-                   Map<Integer, String> keyMappings, boolean overlayApplied,
+                   Map<Integer, String> remoteKeys, boolean overlayApplied,
                    Festival festival) {
         this.dockApps = Collections.unmodifiableList(dockApps);
         this.fillDock = fillDock;
@@ -106,7 +106,7 @@ final class Config {
         this.settingsKeyPanel = settingsKeyPanel;
         this.wallpaper = wallpaper;
         this.dockPaddingTop = dockPaddingTop;
-        this.keyMappings = Collections.unmodifiableMap(keyMappings);
+        this.remoteKeys = Collections.unmodifiableMap(remoteKeys);
         this.overlayApplied = overlayApplied;
         this.festival = festival;
     }
@@ -143,14 +143,14 @@ final class Config {
         int dockPaddingTop = -1;
         boolean applied = false;
 
-        Map<Integer, String> keyMappings = new HashMap<>();
+        Map<Integer, String> remoteKeys = new HashMap<>();
         // Default remap for TCL remote app buttons
-        keyMappings.put(190, "io.gh.reisxd.tizentube.cobalt"); // YouTube -> TizenTube
-        keyMappings.put(4168, "vn.mytvnet.b2cott");             // VTVgo -> MyTV
-        keyMappings.put(4062, "org.courville.nova");            // Netflix -> Nova Video Player
-        keyMappings.put(178, "action:inputs");                  // Change Input -> HDMI / Inputs Menu
-        keyMappings.put(4001, "action:wallpaper");              // Change Channel -> Cycle Wallpaper
-        keyMappings.put(83, "action:settings");                 // Settings key -> Quick Settings Panel
+        remoteKeys.put(190, "io.gh.reisxd.tizentube.cobalt"); // YouTube -> TizenTube
+        remoteKeys.put(4168, "vn.mytvnet.b2cott");             // VTVgo -> MyTV
+        remoteKeys.put(4062, "org.courville.nova");            // Netflix -> Nova Video Player
+        remoteKeys.put(178, "inputs");                         // Change Input -> HDMI / Inputs Menu
+        remoteKeys.put(4001, "wallpaper_cycle");               // Change Channel -> Cycle Wallpaper
+        remoteKeys.put(83, "quick_settings");                  // Settings key -> Quick Settings Panel
 
         File dir = dir(ctx);
         File file = dir != null ? new File(dir, FILE_NAME) : null;
@@ -180,7 +180,7 @@ final class Config {
             skyIntensity = integer(json, "sky_intensity", skyIntensity, 0, 100);
             settingsKeycodes = intArray(json, "settings_key_keycodes", settingsKeycodes);
             settingsKeyPanel = bool(json, "settings_key_panel", settingsKeyPanel);
-            parseKeyMappings(json, keyMappings);
+            parseRemoteKeys(json, remoteKeys);
         }
         // A theme push or reset invalidates choices made on the TV. On first use, remember the
         // current theme without clearing choices from an older launcher version.
@@ -202,7 +202,7 @@ final class Config {
                 Math.max(1, columns), Math.max(0, rowsBelow), animations, advancedEffects, ambientGlow,
                 shamsi, moduleCards, reducedMotion, vpn, homeSettings, background,
                 Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, wallpaper, dockPaddingTop,
-                keyMappings, applied, festival);
+                remoteKeys, applied, festival);
     }
 
     private static void syncThemeChoices(SharedPreferences choices, File dir, File config) {
@@ -313,22 +313,16 @@ final class Config {
         return out;
     }
 
-    static void parseKeyMappings(JSONObject json, Map<Integer, String> out) {
+    static void parseRemoteKeys(JSONObject json, Map<Integer, String> out) {
         if (json == null) return;
-        JSONObject km = json.optJSONObject("key_mappings");
-        parseMappingObject(km, out);
         JSONObject rk = json.optJSONObject("remote_keys");
-        parseMappingObject(rk, out);
-    }
-
-    private static void parseMappingObject(JSONObject obj, Map<Integer, String> out) {
-        if (obj == null) return;
-        java.util.Iterator<String> it = obj.keys();
+        if (rk == null) return;
+        java.util.Iterator<String> it = rk.keys();
         while (it.hasNext()) {
             String k = it.next();
             try {
                 int code = Integer.parseInt(k);
-                String val = obj.optString(k, "").trim();
+                String val = rk.optString(k, "").trim();
                 if (!val.isEmpty()) {
                     out.put(code, val);
                 }

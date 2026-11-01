@@ -56,9 +56,9 @@ public class HomeKeyService extends AccessibilityService {
 
         // 1. Direct App Shortcuts & Actions (YouTube, Netflix, VTVgo, Inputs, Wallpaper, etc.)
         Config cfg = getConfig();
-        String target = cfg.keyMappings.get(event.getKeyCode());
+        String target = cfg.remoteKeys.get(event.getKeyCode());
         if (target == null && event.getScanCode() > 0) {
-            target = cfg.keyMappings.get(event.getScanCode());
+            target = cfg.remoteKeys.get(event.getScanCode());
         }
         if (target != null) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
@@ -105,33 +105,11 @@ public class HomeKeyService extends AccessibilityService {
     static String getActionType(String target) {
         if (target == null) return null;
         String t = target.trim();
-        if ("action:settings".equalsIgnoreCase(t)
-                || "settings".equalsIgnoreCase(t)
-                || "action:quick_settings".equalsIgnoreCase(t)
-                || "quick_settings".equalsIgnoreCase(t)) {
-            return "quick_settings";
-        }
-        if ("action:recent_apps".equalsIgnoreCase(t)
-                || "recent_apps".equalsIgnoreCase(t)
-                || "recents".equalsIgnoreCase(t)) {
-            return "recent_apps";
-        }
-        if ("action:inputs".equalsIgnoreCase(t)
-                || "inputs".equalsIgnoreCase(t)) {
-            return "inputs";
-        }
-        if ("action:wallpaper".equalsIgnoreCase(t)
-                || "wallpaper".equalsIgnoreCase(t)
-                || "action:wallpaper_cycle".equalsIgnoreCase(t)
-                || "wallpaper_cycle".equalsIgnoreCase(t)) {
-            return "wallpaper_cycle";
-        }
-        if ("action:wallpaper_picker".equalsIgnoreCase(t)
-                || "wallpaper_picker".equalsIgnoreCase(t)
-                || "wallpaper_grid".equalsIgnoreCase(t)
-                || "action:wallpaper_grid".equalsIgnoreCase(t)) {
-            return "wallpaper_picker";
-        }
+        if ("quick_settings".equalsIgnoreCase(t)) return "quick_settings";
+        if ("recent_apps".equalsIgnoreCase(t)) return "recent_apps";
+        if ("inputs".equalsIgnoreCase(t)) return "inputs";
+        if ("wallpaper_cycle".equalsIgnoreCase(t)) return "wallpaper_cycle";
+        if ("wallpaper_picker".equalsIgnoreCase(t)) return "wallpaper_picker";
         return "app";
     }
 
