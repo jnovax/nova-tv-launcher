@@ -23,6 +23,20 @@ This repository contains **Apple TV Launcher**, an ultra-lightweight (~218 KB) A
    - 100% rollback: re-enables all system packages, restores stock launcher, reverts animations.
    - Cleans up SmartTube and Apple TV Launcher on request.
 
+4. **`./tools/sync_wallpaper.sh <image_path> [TV_IP]`**:
+   - Normalizes wallpapers to 4K UHD (`3840x2160`, MozJPEG q=92) and syncs via `/data/local/tmp` staging.
+   - Detailed specifications: [`docs/WALLPAPERS.md`](docs/WALLPAPERS.md).
+   - Remote mapping details: [`docs/REMOTE_MAPPING.md`](docs/REMOTE_MAPPING.md).
+
+## 💻 Build & Development Environment
+
+- **Java JDK:** `JAVA_HOME=/opt/jdk17` (OpenJDK 17.0.21)
+- **Android SDK:** `ANDROID_HOME=/opt/android-sdk`
+- **Local SDK Configuration:** `local.properties` contains `sdk.dir=/opt/android-sdk`
+- **Environment PATH:** `$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH`
+- **Build Command:** `./gradlew assembleRelease`
+- **Detailed Reference:** [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md)
+
 ## 🛡️ Critical Guardrails for AI Assistants
 
 - **Autonomous Approval Ban:** You must NEVER execute `./tools/setup.sh -y` or `./tools/apply.sh` autonomously without the user explicitly stating "Approved" or "Proceed" in chat.

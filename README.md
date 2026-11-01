@@ -8,26 +8,27 @@
   <img src="https://img.shields.io/badge/APK%20Size-218%20KB-success.svg" alt="Size">
 </p>
 
-
-An ultra-lightweight, bloat-free Android TV launcher featuring a native **Apple TV-style Recent Apps Switcher**, remote double-press navigation, and 100% hardware-speed volume acceleration.
+An ultra-lightweight, bloat-free Android TV launcher featuring a native **Apple TV-style Recent Apps Switcher**, visual 4K UHD wallpaper picker, remote double-press navigation, and 100% hardware-speed volume acceleration.
 
 ---
 
 <p align="center">
   <img src="docs/Homescreen.png" alt="Apple TV Home Screen" width="850">
 </p>
-<p align="center"><em>Minimalist Pitch-Black Leanback Grid</em></p>
+<p align="center"><em>Minimalist Pitch-Black Leanback Grid with Symmetrical Focus Scaling</em></p>
 
 ---
 
 ## ✨ Features
 
-- 🍎 **tvOS-Inspired Interface:** Minimalist pitch-black home screen, dynamic top shelf with ambient artwork glow, and a fluid app grid with spring animations.
-- 🔄 **Apple TV Recent Apps Switcher:** Smooth horizontal carousel of running apps with live task switching and quick task controls.
+- 🍎 **tvOS 18-Inspired Interface:** Minimalist pitch-black home screen, borderless symmetrical icon focus scaling, uniform dock platter padding & gap geometry matching Apple tvOS specifications.
+- 🖼️ **Native 4K UHD Wallpaper Engine:** Visual wallpaper grid picker with LruCache memory protection, remote 1-click wallpaper cycling with 400ms crossfade, top-left frosted glass banner indicator, and `ambient_glow` toggle for pure uncorrupted wallpaper colors.
+- 🔄 **Apple TV Recent Apps Switcher:** Smooth horizontal carousel of running apps with live task switching and quick task controls via `RecentAppsActivity`.
 - ⚡ **Zero Volume Lag (Hardware Preservation):** Unlike accessibility-based remappers that break Android's `InputDispatcher` repeat timer, our launcher preserves 100% hardware-speed volume hold acceleration.
-- 🎮 **Remote Gesture Shortcuts:** Double-press the Home button from anywhere to immediately bring up the App Switcher.
+- 🎮 **Dynamic Remote Button Mapping & Gestures:** Fully configurable key bindings via `config.json` for wallpaper switching, Quick Settings, TV inputs, and double-press Home gesture.
+- 🛠️ **Automated 4K Wallpaper Pipeline (`sync_wallpaper.sh`):** Center-crop, MozJPEG q=92 normalization, FUSE-safe 2-stage staging push, and MD5 integrity verification.
 - 🪶 **Ultra-Lightweight (~218 KB):** Pure Java, zero analytics, zero telemetry, zero background battery drain.
-- 🧹 **Safe Debloat Ready:** Compatible with ADB debloat lists to disable manufacturer bloatware (PatchWall, telemetry, recommendation rows) without root.
+- 🧹 **Safe Debloat & Instant Rollback:** Verified multi-brand profiles (Sony, TCL, Xiaomi, OnePlus, Hisense, Shield, Chromecast, Fire TV) with Day-1 baseline snapshots and 1-click full restore.
 
 ---
 
@@ -35,8 +36,33 @@ An ultra-lightweight, bloat-free Android TV launcher featuring a native **Apple 
 
 | | | |
 |---|---|---|
-| ![Recent Apps Switcher](docs/RecentTab.png) | ![Control Center](docs/Control_Center.png) | ![tvOS Split-Pane Settings](docs/Settings.png) |
-| *Native Apple TV App Switcher (Double-Press Home)* | *Quick Settings & Control Center Platter* | *tvOS 18 Split-Pane Launcher Settings* |
+| ![Recent Apps Switcher](docs/RecentTab.png) | ![Wallpaper Grid Picker](docs/WallpaperPicker.png) | ![Control Center](docs/Control_Center.png) |
+| *Native Apple TV App Switcher (Double-Press Home)* | *tvOS 18 Visual 4K Wallpaper Grid Picker* | *Quick Settings & Control Center Platter* |
+| ![TV Inputs Switcher](docs/Inputs.png) | ![Wallpaper Switch Banner](docs/WallpaperBanner.png) | ![tvOS Split-Pane Settings](docs/Settings.png) |
+| *Quick TV Inputs Switcher (HDMI / AV)* | *Frosted Glass Wallpaper Indicator Banner* | *tvOS 18 Split-Pane Launcher Settings* |
+
+---
+
+## 🖼️ 4K UHD Wallpapers & Visual Picker
+
+The launcher features an integrated 4K wallpaper ecosystem:
+- **Visual Grid Picker (`SHOW_WALLPAPERS`):** High-speed horizontal carousel with LruCache thumbnail decoding (`RGB_565`), smooth tvOS focus ring, and persistent tracking that auto-scrolls to the active wallpaper.
+- **Remote Cycling (`CYCLE_WALLPAPER`):** 1-button instant cycling between wallpapers with 400ms crossfade and top-left frosted glass banner.
+- **Ambient Glow Toggle (`ambient_glow`):** Configurable in `config.xml` to prevent icon accent colors from tinting the background artwork.
+- **Sync Pipeline:** Use `./tools/sync_wallpaper.sh <image_path> [TV_IP]` to normalize any image to 3840×2160 JPEG q=92, bypass Android FUSE `fchown` limits via `/data/local/tmp` staging, and verify with MD5 checksums.
+
+👉 *See [`docs/WALLPAPERS.md`](docs/WALLPAPERS.md) for full TV hardware profile and technical constraints.*
+
+---
+
+## 🎮 Remote Button Remapping & Gestures
+
+- **Double-Press Home:** Brings up the native Apple TV Recent Apps Switcher.
+- **Dynamic Key Mappings:** Configure any remote button keycode in `config.json` to trigger `wallpaper_cycle`, `quick_settings`, `inputs`, or `recent_apps`.
+- **Zero Accessibility Lag:** Non-mapped navigation and volume keys pass directly to Android's Linux `InputDispatcher` for 100% hardware-speed volume hold acceleration.
+
+👉 *See [`docs/REMOTE_MAPPING.md`](docs/REMOTE_MAPPING.md) for keycodes, logcat discovery, and configuration examples.*
+
 ---
 
 ## 🚀 1-Click Universal TV Setup
@@ -95,6 +121,13 @@ bash reports/apply_<ts>.sh
 ### 🛠️ Option 3: Standalone Launcher Installation
 
 If you only want the ultra-lightweight launcher without debloating:
+
+**Build Environment Requirements:**
+- **JDK:** OpenJDK 17 (`JAVA_HOME=/opt/jdk17`)
+- **Android SDK:** `ANDROID_HOME=/opt/android-sdk` (ensure `local.properties` contains `sdk.dir=/opt/android-sdk`)
+- **PATH:** `$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH`
+- 👉 *See [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md) for full environment setup.*
+
 ```bash
 # 1. Build release APK (or use pre-built binary in app/build/outputs/apk/release/)
 ./gradlew assembleRelease
@@ -155,13 +188,16 @@ To restore your TV back to its exact untouched factory state:
 
 ## 🙏 Credits & Acknowledgments
 
-This project is based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv) by [Gathin](https://github.com/Gathin23). Parts of the launcher code (cards, grid navigation, sky/festival effects, settings) and the debloat workflow come from it, used under the MIT License.
+This project is based on [CleanYourTV](https://github.com/Gathin23/cleanyourtv) by [Gathin](https://github.com/Gathin23) and [Spider-Tv-Launcher](https://github.com/Fardin7798/Spider-Tv-Launcher) by [Fardin](https://github.com/Fardin7798). Parts of the launcher code (cards, grid navigation, sky/festival effects, settings) and the debloat workflow come from them, used under the MIT License.
 
 New in Apple TV Launcher:
 - Apple TV Recent Apps Switcher (`RecentAppsActivity`) with animated card carousel
-- Remote double-press Home gesture
-- Zero-lag volume hold acceleration
-- tvOS 18 style home and settings
+- Remote double-press Home gesture & configurable dynamic key mapping
+- Zero-lag volume hold acceleration (hardware preservation)
+- tvOS 18 visual 4K wallpaper grid picker & 1-button remote cycling with frosted glass banner
+- Symmetrical center-zoom icon focus & refined tvOS 18 dock platter geometry
+- Configurable ambient glow toggle (`ambient_glow`) preserving true wallpaper colors
+- Automated 4K wallpaper normalization & FUSE-safe sync pipeline (`tools/sync_wallpaper.sh`)
 
 ## 📄 License
 
