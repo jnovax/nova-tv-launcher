@@ -108,8 +108,50 @@
             android:paddingEnd="54dp" />
     </HorizontalScrollView>
 
+    <!-- Empty state container -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginTop="178dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/emptyIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:alpha="0.35"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:tint="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/emptyTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:alpha="0.8"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/recents_empty_title"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/emptyDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:alpha="0.5"
+            android:fontFamily="sans-serif"
+            android:text="@string/recents_empty_desc"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+    </LinearLayout>
+
     <!-- Actions for the selected app -->
     <LinearLayout
+        android:id="@+id/actionsRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="60dp"

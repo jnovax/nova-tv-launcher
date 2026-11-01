@@ -23,7 +23,7 @@ An ultra-lightweight, bloat-free Android TV launcher featuring a native **Apple 
 
 - 🍎 **tvOS 18-Inspired Interface:** Minimalist pitch-black home screen, borderless symmetrical icon focus scaling, uniform dock platter padding & gap geometry matching Apple tvOS specifications.
 - 🖼️ **Native 4K UHD Wallpaper Engine:** Visual wallpaper grid picker with LruCache memory protection, remote 1-click wallpaper cycling with 400ms crossfade, top-left frosted glass banner indicator, and `ambient_glow` toggle for pure uncorrupted wallpaper colors.
-- 🔄 **Apple TV Recent Apps Switcher:** Smooth horizontal carousel of running apps with live task switching and quick task controls via `RecentAppsActivity`.
+- 🔄 **Apple TV Recent Apps Switcher:** Smooth horizontal carousel of recently used apps with live task switching, authentic usage stats tracking, tvOS empty state, and quick task controls via `RecentAppsActivity`.
 - ⚡ **Zero Volume Lag (Hardware Preservation):** Unlike accessibility-based remappers that break Android's `InputDispatcher` repeat timer, our launcher preserves 100% hardware-speed volume hold acceleration.
 - 🎮 **Dynamic Remote Button Mapping & Gestures:** Fully configurable key bindings via `config.json` for wallpaper switching, Quick Settings, TV inputs, and double-press Home gesture.
 - 🛠️ **Automated 4K Wallpaper Pipeline (`sync_wallpaper.sh`):** Center-crop, MozJPEG q=92 normalization, FUSE-safe 2-stage staging push, and MD5 integrity verification.

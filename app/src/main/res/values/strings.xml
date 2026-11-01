@@ -65,4 +65,8 @@
     <string name="card_state_new">New</string>
     <string name="card_state_new_key">New key</string>
     <string name="card_state_new_label">New name</string>
+    <string name="recents_empty_title">No Recent Apps</string>
+    <string name="recents_empty_desc">Apps you use will appear here</string>
+    <string name="recents_permission_title">Usage Access Required</string>
+    <string name="recents_permission_desc">Enable usage access in TV settings to track recent apps</string>
 </resources>

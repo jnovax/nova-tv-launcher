@@ -58,7 +58,7 @@ Sau đó bạn chỉ cần thêm mã số đó vào phần `remote_keys` trong f
 
 ### 1. Nhấn đúp phím Home (Double-Press Home ➔ Recent Apps Switcher):
 - Nhấn phím **Home** 2 lần liên tiếp (trong khoảng 1200ms) từ bất cứ màn hình nào để gọi ngay **Recent Apps Switcher** mang phong cách tvOS.
-- Cho phép xem nhanh danh sách các ứng dụng vừa mở, chuyển đổi tức thì hoặc đóng ứng dụng chạy ngầm.
+- Cho phép xem nhanh danh sách các ứng dụng vừa mở (dựa trên UsageStats thực tế), chuyển đổi tức thì hoặc đóng ứng dụng ngầm. Hỗ trợ hiển thị Empty State tvOS khi đã đóng hết ứng dụng hoặc khi chưa cấp quyền.
 
 <p align="center">
   <img src="RecentTab.png" alt="Recent Apps Switcher" width="750">

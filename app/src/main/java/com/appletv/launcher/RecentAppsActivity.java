@@ -66,8 +66,8 @@ public class RecentAppsActivity extends Activity {
     private int selected = 0;
     private int glowColor = GLOW_DEFAULT;
 
-    private View glowBg;
-    private TextView txtSubtitle, btnClearAll, btnSettings, btnOpen, btnClose, btnInfo;
+    private View glowBg, emptyState, actionsRow;
+    private TextView txtSubtitle, btnClearAll, btnSettings, btnOpen, btnClose, btnInfo, emptyTitle, emptyDesc;
     private LinearLayout cardRow;
     private HorizontalScrollView scroller;
     private ActivityManager am;
@@ -101,6 +101,10 @@ public class RecentAppsActivity extends Activity {
         btnInfo = findViewById(R.id.btnInfo);
         cardRow = findViewById(R.id.cardRow);
         scroller = findViewById(R.id.scroller);
+        emptyState = findViewById(R.id.emptyState);
+        emptyTitle = findViewById(R.id.emptyTitle);
+        emptyDesc = findViewById(R.id.emptyDesc);
+        actionsRow = findViewById(R.id.actionsRow);
 
         styleStatic();
         wireButtons();
@@ -228,51 +232,27 @@ public class RecentAppsActivity extends Activity {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
             long now = System.currentTimeMillis();
             Map<String, UsageStats> stats = usm.queryAndAggregateUsageStats(now - DateUtils.DAY_IN_MILLIS, now);
-            for (UsageStats s : stats.values()) {
-                String pkg = s.getPackageName();
-                if (skip.contains(pkg) || s.getLastTimeUsed() <= 0 || s.getTotalTimeInForeground() <= 0) continue;
-                if (s.getLastTimeUsed() <= prefs.getLong(pkg, 0)) continue;
-                if (launchIntent(pkg) == null) continue;
-                try {
-                    ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
-                    RecentApp a = new RecentApp();
-                    a.pkg = pkg;
-                    a.label = pm.getApplicationLabel(ai).toString();
-                    Drawable banner = pm.getApplicationBanner(ai);
-                    a.isBanner = banner != null;
-                    a.image = banner != null ? banner : pm.getApplicationIcon(ai);
-                    a.lastUsed = s.getLastTimeUsed();
-                    a.fgTime = s.getTotalTimeInForeground();
-                    a.color = dominantColor(pm.getApplicationIcon(ai));
-                    apps.add(a);
-                } catch (PackageManager.NameNotFoundException ignored) { }
-            }
-            apps.sort((x, y) -> Long.compare(y.lastUsed, x.lastUsed));
-        }
-        if (apps.isEmpty()) {
-            Intent main = new Intent(Intent.ACTION_MAIN, null);
-            main.addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
-            List<ResolveInfo> list = pm.queryIntentActivities(main, 0);
-            if (list == null || list.isEmpty()) {
-                main.removeCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
-                main.addCategory(Intent.CATEGORY_LAUNCHER);
-                list = pm.queryIntentActivities(main, 0);
-            }
-            if (list != null) {
-                for (ResolveInfo ri : list) {
-                    String pkg = ri.activityInfo.packageName;
-                    if (skip.contains(pkg) || pkg.equals(getPackageName())) continue;
+            if (stats != null) {
+                for (UsageStats s : stats.values()) {
+                    String pkg = s.getPackageName();
+                    if (skip.contains(pkg) || s.getLastTimeUsed() <= 0 || s.getTotalTimeInForeground() <= 0) continue;
+                    if (s.getLastTimeUsed() <= prefs.getLong(pkg, 0)) continue;
                     if (launchIntent(pkg) == null) continue;
-                    RecentApp a = new RecentApp();
-                    a.pkg = pkg;
-                    a.label = ri.loadLabel(pm).toString();
-                    Drawable banner = ri.activityInfo.loadBanner(pm);
-                    a.isBanner = banner != null;
-                    a.image = banner != null ? banner : ri.loadIcon(pm);
-                    a.color = dominantColor(ri.loadIcon(pm));
-                    apps.add(a);
-                    if (apps.size() >= MAX_APPS) break;
+                    try {
+                        ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
+                        RecentApp a = new RecentApp();
+                        a.pkg = pkg;
+                        a.label = pm.getApplicationLabel(ai).toString();
+                        Drawable banner = pm.getApplicationBanner(ai);
+                        a.isBanner = banner != null;
+                        a.image = banner != null ? banner : pm.getApplicationIcon(ai);
+                        a.lastUsed = s.getLastTimeUsed();
+                        a.fgTime = s.getTotalTimeInForeground();
+                        a.color = dominantColor(pm.getApplicationIcon(ai));
+                        apps.add(a);
+                    } catch (PackageManager.NameNotFoundException ignored) { }
                 }
+                apps.sort((x, y) -> Long.compare(y.lastUsed, x.lastUsed));
             }
         }
         while (apps.size() > MAX_APPS) apps.remove(apps.size() - 1);
@@ -283,7 +263,36 @@ public class RecentAppsActivity extends Activity {
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         am.getMemoryInfo(mi);
         double gb = mi.availMem / (1024.0 * 1024 * 1024);
-        txtSubtitle.setText(String.format(Locale.US, "%d apps open  ·  %.1f GB memory free", apps.size(), gb));
+        if (!hasUsageAccess()) {
+            txtSubtitle.setText(String.format(Locale.US, "Usage access not granted  ·  %.1f GB memory free", gb));
+        } else if (apps.isEmpty()) {
+            txtSubtitle.setText(String.format(Locale.US, "No apps open  ·  %.1f GB memory free", gb));
+        } else {
+            txtSubtitle.setText(String.format(Locale.US, "%d apps open  ·  %.1f GB memory free", apps.size(), gb));
+        }
+    }
+
+    private void updateViewState() {
+        boolean empty = apps.isEmpty();
+        if (scroller != null) scroller.setVisibility(empty ? View.GONE : View.VISIBLE);
+        if (emptyState != null) emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
+        if (actionsRow != null) actionsRow.setVisibility(empty ? View.GONE : View.VISIBLE);
+
+        if (btnClearAll != null) {
+            btnClearAll.setEnabled(!empty);
+            btnClearAll.setFocusable(!empty);
+            btnClearAll.setAlpha(empty ? 0.35f : 1.0f);
+        }
+
+        if (empty) {
+            if (!hasUsageAccess()) {
+                if (emptyTitle != null) emptyTitle.setText(R.string.recents_permission_title);
+                if (emptyDesc != null) emptyDesc.setText(R.string.recents_permission_desc);
+            } else {
+                if (emptyTitle != null) emptyTitle.setText(R.string.recents_empty_title);
+                if (emptyDesc != null) emptyDesc.setText(R.string.recents_empty_desc);
+            }
+        }
     }
 
     /** Most saturated colour of the icon, boosted so the glow looks like the design. */
@@ -330,12 +339,14 @@ public class RecentAppsActivity extends Activity {
             cardViews.add(item);
         }
         selected = 0;
+        updateViewState();
         if (!cardViews.isEmpty()) {
             for (int i = 0; i < cardViews.size(); i++) setCardSize(cardViews.get(i), i == 0, false);
             cardViews.get(0).findViewById(R.id.cardHolder).requestFocus();
             animateGlowTo(apps.get(0).color);
         } else {
-            btnClearAll.requestFocus();
+            animateGlowTo(GLOW_DEFAULT);
+            btnSettings.requestFocus();
         }
     }
 
@@ -470,7 +481,7 @@ public class RecentAppsActivity extends Activity {
             startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + a.pkg)));
         });
         btnClearAll.setOnClickListener(v -> clearAll());
-        btnSettings.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_SETTINGS)));
+        btnSettings.setOnClickListener(v -> openSettings());
 
         View.OnKeyListener backToCards = (v, keyCode, e) -> {
             if (e.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_UP && !cardViews.isEmpty()) {
@@ -498,6 +509,22 @@ public class RecentAppsActivity extends Activity {
         return (selected >= 0 && selected < apps.size()) ? apps.get(selected) : null;
     }
 
+    private void openSettings() {
+        if (!hasUsageAccess()) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return;
+            } catch (Exception ignored) { }
+        }
+        try {
+            Intent intent = new Intent(Settings.ACTION_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception ignored) { }
+    }
+
     private void openApp(RecentApp a) {
         Intent i = launchIntent(a.pkg);
         if (i == null) return;
@@ -518,7 +545,12 @@ public class RecentAppsActivity extends Activity {
             cardViews.remove(idx);
             apps.remove(idx);
             updateSubtitle();
-            if (cardViews.isEmpty()) { animateGlowTo(GLOW_DEFAULT); btnClearAll.requestFocus(); return; }
+            if (cardViews.isEmpty()) {
+                updateViewState();
+                animateGlowTo(GLOW_DEFAULT);
+                btnSettings.requestFocus();
+                return;
+            }
             selected = Math.min(idx, cardViews.size() - 1);
             setCardSize(cardViews.get(selected), true, true);
             cardViews.get(selected).findViewById(R.id.cardHolder).requestFocus();
@@ -526,6 +558,7 @@ public class RecentAppsActivity extends Activity {
     }
 
     private void clearAll() {
+        if (apps.isEmpty()) return;
         SharedPreferences.Editor ed = prefs.edit();
         long now = System.currentTimeMillis();
         for (RecentApp a : apps) {
@@ -537,7 +570,9 @@ public class RecentAppsActivity extends Activity {
         cardViews.clear();
         cardRow.removeAllViews();
         updateSubtitle();
+        updateViewState();
         animateGlowTo(GLOW_DEFAULT);
+        btnSettings.requestFocus();
     }
 
     @Override
