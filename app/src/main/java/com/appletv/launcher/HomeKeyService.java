@@ -51,11 +51,15 @@ public class HomeKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        android.util.Log.i("AppleTv.HomeKey", "onKeyEvent: keyCode=" + event.getKeyCode() + " scanCode=" + event.getScanCode() + " action=" + event.getAction());
         android.util.Log.e("HomeKeyTest", "key: " + event.getKeyCode() + " action: " + event.getAction());
 
         // 1. Direct App Shortcuts & Actions (YouTube, Netflix, VTVgo, Inputs, Wallpaper, etc.)
         Config cfg = getConfig();
         String target = cfg.keyMappings.get(event.getKeyCode());
+        if (target == null && event.getScanCode() > 0) {
+            target = cfg.keyMappings.get(event.getScanCode());
+        }
         if (target != null) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
                 launchTarget(target);
@@ -98,8 +102,42 @@ public class HomeKeyService extends AccessibilityService {
         return true;
     }
 
+    static String getActionType(String target) {
+        if (target == null) return null;
+        String t = target.trim();
+        if ("action:settings".equalsIgnoreCase(t)
+                || "settings".equalsIgnoreCase(t)
+                || "action:quick_settings".equalsIgnoreCase(t)
+                || "quick_settings".equalsIgnoreCase(t)) {
+            return "quick_settings";
+        }
+        if ("action:recent_apps".equalsIgnoreCase(t)
+                || "recent_apps".equalsIgnoreCase(t)
+                || "recents".equalsIgnoreCase(t)) {
+            return "recent_apps";
+        }
+        if ("action:inputs".equalsIgnoreCase(t)
+                || "inputs".equalsIgnoreCase(t)) {
+            return "inputs";
+        }
+        if ("action:wallpaper".equalsIgnoreCase(t)
+                || "wallpaper".equalsIgnoreCase(t)
+                || "action:wallpaper_cycle".equalsIgnoreCase(t)
+                || "wallpaper_cycle".equalsIgnoreCase(t)) {
+            return "wallpaper_cycle";
+        }
+        if ("action:wallpaper_picker".equalsIgnoreCase(t)
+                || "wallpaper_picker".equalsIgnoreCase(t)
+                || "wallpaper_grid".equalsIgnoreCase(t)
+                || "action:wallpaper_grid".equalsIgnoreCase(t)) {
+            return "wallpaper_picker";
+        }
+        return "app";
+    }
+
     private void launchTarget(String target) {
-        if ("action:settings".equalsIgnoreCase(target) || "action:quick_settings".equalsIgnoreCase(target) || "settings".equalsIgnoreCase(target)) {
+        String type = getActionType(target);
+        if ("quick_settings".equals(type)) {
             Intent intent = new Intent(this, QuickSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             try {
@@ -109,13 +147,25 @@ public class HomeKeyService extends AccessibilityService {
             }
             return;
         }
+
+        if ("recent_apps".equals(type)) {
+            Intent intent = new Intent(this, RecentAppsActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            try {
+                startActivity(intent);
+            } catch (Exception e) {
+                android.util.Log.e("HomeKeyService", "Failed to start recent apps", e);
+            }
+            return;
+        }
+
         Intent intent = new Intent(this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        if ("action:inputs".equalsIgnoreCase(target) || "inputs".equalsIgnoreCase(target)) {
+        if ("inputs".equals(type)) {
             intent.setAction(MainActivity.ACTION_SHOW_INPUTS);
-        } else if ("action:wallpaper_picker".equalsIgnoreCase(target) || "wallpaper_picker".equalsIgnoreCase(target)) {
+        } else if ("wallpaper_picker".equals(type)) {
             intent.setAction(MainActivity.ACTION_SHOW_WALLPAPERS);
-        } else if ("action:wallpaper".equalsIgnoreCase(target) || "wallpaper".equalsIgnoreCase(target)) {
+        } else if ("wallpaper_cycle".equals(type)) {
             intent.setAction(MainActivity.ACTION_CYCLE_WALLPAPER);
         } else {
             intent.setAction(MainActivity.ACTION_LAUNCH_APP);

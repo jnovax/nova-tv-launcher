@@ -180,22 +180,7 @@ final class Config {
             skyIntensity = integer(json, "sky_intensity", skyIntensity, 0, 100);
             settingsKeycodes = intArray(json, "settings_key_keycodes", settingsKeycodes);
             settingsKeyPanel = bool(json, "settings_key_panel", settingsKeyPanel);
-            if (json.has("key_mappings")) {
-                JSONObject km = json.optJSONObject("key_mappings");
-                if (km != null) {
-                    java.util.Iterator<String> it = km.keys();
-                    while (it.hasNext()) {
-                        String k = it.next();
-                        try {
-                            int code = Integer.parseInt(k);
-                            String pkg = km.optString(k, "").trim();
-                            if (!pkg.isEmpty()) {
-                                keyMappings.put(code, pkg);
-                            }
-                        } catch (NumberFormatException ignored) {}
-                    }
-                }
-            }
+            parseKeyMappings(json, keyMappings);
         }
         // A theme push or reset invalidates choices made on the TV. On first use, remember the
         // current theme without clearing choices from an older launcher version.
@@ -326,5 +311,28 @@ final class Config {
             if (item instanceof String && !((String) item).trim().isEmpty()) out.add(((String) item).trim());
         }
         return out;
+    }
+
+    static void parseKeyMappings(JSONObject json, Map<Integer, String> out) {
+        if (json == null) return;
+        JSONObject km = json.optJSONObject("key_mappings");
+        parseMappingObject(km, out);
+        JSONObject rk = json.optJSONObject("remote_keys");
+        parseMappingObject(rk, out);
+    }
+
+    private static void parseMappingObject(JSONObject obj, Map<Integer, String> out) {
+        if (obj == null) return;
+        java.util.Iterator<String> it = obj.keys();
+        while (it.hasNext()) {
+            String k = it.next();
+            try {
+                int code = Integer.parseInt(k);
+                String val = obj.optString(k, "").trim();
+                if (!val.isEmpty()) {
+                    out.put(code, val);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
     }
 }

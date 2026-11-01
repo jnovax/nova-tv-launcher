@@ -115,7 +115,15 @@ if [ "$WANTS_LAUNCHER" = true ]; then
 
     echo "==> [Phase 2] Granting permissions for Recent Apps Switcher and Remote Keys..."
     adb -s "$TARGET_DEV" shell appops set com.appletv.launcher GET_USAGE_STATS allow >/dev/null 2>&1 || true
-    adb -s "$TARGET_DEV" shell settings put secure enabled_accessibility_services com.appletv.launcher/.HomeKeyService >/dev/null 2>&1 || true
+    CURRENT_A11Y=$(adb -s "$TARGET_DEV" shell settings get secure enabled_accessibility_services 2>/dev/null | tr -d '\r')
+    if [ -z "$CURRENT_A11Y" ] || [ "$CURRENT_A11Y" = "null" ]; then
+        NEW_A11Y="com.appletv.launcher/.HomeKeyService"
+    elif ! echo "$CURRENT_A11Y" | grep -qF "com.appletv.launcher/.HomeKeyService"; then
+        NEW_A11Y="${CURRENT_A11Y}:com.appletv.launcher/.HomeKeyService"
+    else
+        NEW_A11Y="$CURRENT_A11Y"
+    fi
+    adb -s "$TARGET_DEV" shell settings put secure enabled_accessibility_services "$NEW_A11Y" >/dev/null 2>&1 || true
     adb -s "$TARGET_DEV" shell settings put secure accessibility_enabled 1 >/dev/null 2>&1 || true
     echo "    ✅ Permissions granted: GET_USAGE_STATS (Recent Apps) & HomeKeyService."
 

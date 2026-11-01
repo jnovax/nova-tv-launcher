@@ -414,26 +414,30 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Not after recreate(): the launch intent survives it and would open the settings again.
         if (savedInstanceState == null) {
             openLauncherSettingsIfAsked(getIntent());
-            handleLauncherActions(getIntent());
         }
+        handleLauncherActions(getIntent());
     }
 
     private boolean handleLauncherActions(Intent intent) {
         if (intent == null || intent.getAction() == null) return false;
         String action = intent.getAction();
         if (ACTION_CYCLE_WALLPAPER.equals(action)) {
+            setIntent(new Intent(Intent.ACTION_MAIN));
             root.post(this::cycleWallpaper);
             return true;
         }
         if (ACTION_SHOW_WALLPAPERS.equals(action)) {
+            setIntent(new Intent(Intent.ACTION_MAIN));
             root.post(this::showWallpaperPickerGrid);
             return true;
         }
         if (ACTION_SHOW_INPUTS.equals(action)) {
+            setIntent(new Intent(Intent.ACTION_MAIN));
             root.post(this::toggleInputs);
             return true;
         }
         if (ACTION_LAUNCH_APP.equals(action)) {
+            setIntent(new Intent(Intent.ACTION_MAIN));
             String pkg = intent.getStringExtra(EXTRA_PACKAGE_NAME);
             if (pkg != null) {
                 root.post(() -> launchPackageDirect(pkg));
