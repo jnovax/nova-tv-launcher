@@ -316,18 +316,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (cfg.dockPaddingTop >= 0) {
                 want = (int) (cfg.dockPaddingTop * density);
             } else {
-                int totalApps = adapter != null ? adapter.getAppCount() : 5;
-                if (totalApps <= COLUMNS) {
-                    // When <= COLUMNS apps (dock only, no apps below to scroll down to),
-                    // dock bottom sits gracefully 40-60px above the bottom screen edge (prefer 50px = 25dp).
-                    int targetTop = h - tileH - (int) (35 * density);
-                    want = Math.max((int) (60 * density), targetTop);
-                } else {
-                    // When > COLUMNS apps, keep standard bottom margin (25dp = 50px) so users see/hint at rows below.
-                    int bottomPad = (int) (25 * density);
-                    int targetTop = h - dockRow - gridRows - bottomPad;
-                    want = Math.max((int) (60 * density), targetTop);
-                }
+                // Dock equidistant from left, right, and bottom:
+                // sideMargin = grid.getPaddingLeft() (45dp)
+                // Dock platter bottom: dockBottom = cardTop + tileH + padV
+                // We want: h - dockBottom = sideMargin => cardTop = h - sideMargin - tileH - padV
+                // Since cardTop = grid.paddingTop + outRect.top + itemPadTop (with outRect.top = padV = 10dp, itemPadTop = 10dp):
+                // want = h - sideMargin - tileH - (2 * padV + itemPadTop)
+                int sideMargin = grid.getPaddingLeft();
+                int padV = Math.round(DockDecoration.PAD_V_DP * density);
+                int itemPadTop = Math.round(10f * density);
+                int targetTop = h - sideMargin - tileH - (2 * padV + itemPadTop);
+                want = Math.max((int) (60 * density), targetTop);
             }
             if (grid.getPaddingTop() != want) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());

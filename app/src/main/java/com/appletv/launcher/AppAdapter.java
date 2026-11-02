@@ -105,9 +105,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return Math.round(tileWidthPx * DESIGN_H_DP / DESIGN_W_DP);
     }
 
-    /** Height of one grid item: the tile, the name label under it and the item's own padding. */
+    /** Height of one grid item: the tile and its vertical padding. */
     static int itemHeightPx(int tileHeightPx, float density) {
-        return tileHeightPx + Math.round(52 * density);
+        return tileHeightPx + Math.round(20 * density);
     }
 
     private final Context ctx;
@@ -437,6 +437,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             icon = v.findViewById(R.id.icon);
             label = v.findViewById(R.id.label);
             name = v.findViewById(R.id.name);
+            if (name != null) name.setVisibility(View.GONE);
             this.animations = animations;
             this.advancedEffects = advancedEffects;
             this.reducedMotion = reducedMotion;

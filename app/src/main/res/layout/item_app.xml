@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
-    android:paddingBottom="12dp"
+    android:paddingBottom="10dp"
     android:clipChildren="false"
     android:clipToPadding="false">
 
@@ -54,22 +54,14 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- App name under the focused icon (tvOS Caption 1 semibold); faded in by code outside glass panel. -->
+    <!-- App name under the focused icon (tvOS Caption 1 semibold); hidden per request. -->
     <TextView
         android:id="@+id/name"
         android:layout_width="@dimen/tvos_icon_w"
-        android:layout_height="20dp"
+        android:layout_height="0dp"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="106dp"
         android:gravity="center"
         android:singleLine="true"
         android:ellipsize="end"
-        android:alpha="0"
-        android:translationY="-4dp"
-        android:textColor="@color/tvos_label_primary"
-        android:textSize="@dimen/tvos_text_caption1"
-        android:fontFamily="sans-serif-medium"
-        android:shadowColor="#F2000000"
-        android:shadowDy="2"
-        android:shadowRadius="8" />
+        android:visibility="gone" />
 </FrameLayout>

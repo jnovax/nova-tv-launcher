@@ -37,7 +37,14 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         int pos = parent.getChildAdapterPosition(view);
         if (pos >= 0 && pos < dockSize) {
             outRect.top = (int) (PAD_V_DP * density);
-            outRect.bottom = (int) ((PAD_V_DP + 16f) * density);
+            outRect.bottom = (int) (PAD_V_DP * density);
+        } else if (pos >= dockSize && pos < dockSize + dockSize) {
+            // First row below dock: generous gap so it stays completely off-screen until scrolling down
+            outRect.top = (int) (64f * density);
+            outRect.bottom = (int) (12f * density);
+        } else {
+            outRect.top = (int) (12f * density);
+            outRect.bottom = (int) (12f * density);
         }
     }
 
