@@ -46,46 +46,6 @@
       transition: background 0.5s ease, opacity 0.4s ease;
     }
 
-    /* Protection Scrim Overlays (Apple TV Legibility Gradients) */
-    .scrim-top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 180px;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.25) 55%, rgba(0, 0, 0, 0) 100%);
-      z-index: 2;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .scrim-bottom {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 520px;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.18) 35%, rgba(0, 0, 0, 0.55) 70%, rgba(0, 0, 0, 0.78) 100%);
-      z-index: 2;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .scrim-disabled .scrim-top,
-    .scrim-disabled .scrim-bottom {
-      opacity: 0;
-    }
-
-    /* Ambient Dynamic Glow */
-    .ambient-glow {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      opacity: 0.65;
-      transition: opacity 0.5s ease, background 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-      pointer-events: none;
-    }
-
     /* Screen Safe Area Guide Overlay (90px left/right, 60px top/bottom) */
     .safe-area-overlay {
       position: absolute;
@@ -556,16 +516,9 @@
 <body class="deep-shadow">
 
   <!-- 1920x1080 Simulated TV Canvas -->
-  <div id="viewport-frame" class="scrim-disabled">
+  <div id="viewport-frame">
     <!-- Wallpaper Backdrop -->
     <div class="tv-wallpaper" id="wallpaper"></div>
-
-    <!-- Apple TV Protection Legibility Scrims (Top & Bottom Gradients) -->
-    <div class="scrim-top"></div>
-    <div class="scrim-bottom"></div>
-
-    <!-- Ambient Dynamic Glow -->
-    <div class="ambient-glow" id="ambientGlow"></div>
 
     <!-- Safe Area Visual Guides (90px sides, 60px top/bottom) -->
     <div class="safe-area-overlay" id="safeArea">
@@ -640,7 +593,6 @@
     <button class="tool-btn active" id="btnMode5" onclick="setMode(5)">5 Icons (300×180)</button>
     <button class="tool-btn" id="btnMode6" onclick="setMode(6)">6 Icons (242×145)</button>
     <button class="tool-btn" onclick="openWallpaperModal()">🖼️ Wallpapers</button>
-    <button class="tool-btn" id="btnScrim" onclick="toggleScrim()">Protection Scrim: OFF</button>
     <button class="tool-btn active" id="btnShadow" onclick="toggleShadow()">Deep Shadow: ON</button>
     <button class="tool-btn" id="btnSafeArea" onclick="toggleSafeArea()">Safe Area</button>
     <div class="key-hint">
@@ -712,14 +664,12 @@
 
     let currentMode = 5;
     let focusedIndex = 0;
-    let selectedWallpaperIndex = 1; // Start with Chiikawa (Light) to immediately test legibility!
-    let scrimActive = false;
+    let selectedWallpaperIndex = 1; // Start with Chiikawa (Light)
     let deepShadowActive = true;
 
     const dockContainer = document.getElementById('dockContainer');
     const dockRow = document.getElementById('dockRow');
     const heroTitle = document.getElementById('heroTitle');
-    const ambientGlow = document.getElementById('ambientGlow');
     const viewportFrame = document.getElementById('viewport-frame');
     const safeAreaOverlay = document.getElementById('safeArea');
     const wallpaperEl = document.getElementById('wallpaper');
@@ -786,9 +736,6 @@
         heroTitle.style.opacity = '1';
         heroTitle.style.transform = 'translateY(0)';
       }, 120);
-
-      // Update Dynamic Ambient Glow
-      ambientGlow.style.background = `radial-gradient(circle at 50% 88%, ${app.glow} 0%, rgba(0,0,0,0) 65%)`;
     }
 
     function focusTile(idx) {
@@ -850,15 +797,6 @@
 
     function closeWallpaperModal() {
       wallpaperModal.classList.remove('active');
-    }
-
-    function toggleScrim() {
-      scrimActive = !scrimActive;
-      viewportFrame.classList.toggle('scrim-disabled', !scrimActive);
-      const btn = document.getElementById('btnScrim');
-      btn.textContent = `Protection Scrim: ${scrimActive ? 'ON' : 'OFF'}`;
-      btn.classList.toggle('active', scrimActive);
-      btn.classList.toggle('warning', !scrimActive);
     }
 
     function toggleShadow() {
