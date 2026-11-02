@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- tvOS 18 Home: full-bleed Top Shelf art, a menu bar platter at the top right (clock + Inputs / Wi-Fi /
+<!-- Apple TV Home: full-bleed Top Shelf art, a menu bar platter at the top right (clock + Inputs / Wi-Fi /
      Settings controls, greeting and date to its left), the Top Shelf title above the dock, and the app grid
-     on the kit's 6-column grid (250x150px icons, 48px gaps, first icon at x 90px). -->
+     on the 5-column grid (300x180px icons, 48px gaps, 90px safe area margins). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="45dp"
-            android:layout_marginEnd="25dp"
+            android:layout_marginEnd="45dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 

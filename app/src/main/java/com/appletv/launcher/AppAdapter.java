@@ -85,20 +85,20 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         }
     }
 
-    static final float FOCUS_SCALE = 1.2267f;
+    static final float FOCUS_SCALE = 1.2333f;
     /** Design size of a tile (dp); tiles shrink from here when the columns don't fit, see tileWidthPx. */
-    static final float DESIGN_W_DP = 160f, DESIGN_H_DP = 96f;
+    static final float DESIGN_W_DP = 150f, DESIGN_H_DP = 90f;
 
     /**
      * Tile width for a grid of this inner width: the cell minus room for the focus zoom and the glass
-     * highlight, capped at the design size so 4 columns on a 1080p TV look exactly as before.
+     * highlight, capped at the design size so columns on a 1080p TV look clean and proportional.
      */
     static int tileWidthPx(int innerWidthPx, int columns, float density) {
         if (innerWidthPx <= 0 || columns <= 0) return Math.round(DESIGN_W_DP * density);
         int cell = innerWidthPx / columns;
-        int gap = Math.round(32f * density);
+        int gap = Math.round(24f * density);
         int w = cell - gap;
-        return Math.max(Math.round(80 * density), w);
+        return Math.max(Math.round(80 * density), Math.min(Math.round(DESIGN_W_DP * density), w));
     }
 
     static int tileHeightPx(int tileWidthPx) {
@@ -107,7 +107,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
     /** Height of one grid item: the tile, the name label under it and the item's own padding. */
     static int itemHeightPx(int tileHeightPx, float density) {
-        return tileHeightPx + Math.round(45 * density);
+        return tileHeightPx + Math.round(52 * density);
     }
 
     private final Context ctx;
@@ -234,7 +234,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         View name = v.findViewById(R.id.name);
         ViewGroup.MarginLayoutParams nameLp = (ViewGroup.MarginLayoutParams) name.getLayoutParams();
         nameLp.width = w;
-        nameLp.topMargin = h + Math.round(7 * density);
+        nameLp.topMargin = h + Math.round(16 * density);
         name.setLayoutParams(nameLp);
         return new Holder(v, this, listener, animations, advancedEffects, reducedMotion);
     }
@@ -256,14 +256,14 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.card.setVisibility(View.VISIBLE);
         h.card.setFocusable(true);
         h.name.setText(e.name);
-        h.name.setVisibility(position < dockSize ? View.INVISIBLE : View.VISIBLE);   // the dock has no labels
+        h.name.setVisibility(View.VISIBLE);
         boolean focused = h.card.isFocused();   // a rebind after reload() can hit the focused tile
         h.name.setAlpha(focused ? 1f : 0f);
         h.card.setScaleX(focused && animations ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused && animations ? FOCUS_SCALE : 1f);
         h.card.setTranslationX(0f);
         h.card.setTranslationY(0f);
-        h.card.setTranslationZ(focused ? 12f * ctx.getResources().getDisplayMetrics().density : 0f);
+        h.card.setTranslationZ(focused ? 15f * ctx.getResources().getDisplayMetrics().density : 0f);
         h.banner.setScaleX(1f);
         h.banner.setScaleY(1f);
         if (e.banner != null) {
@@ -412,9 +412,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return Color.HSVToColor(hsv);
     }
 
-    /** Corner radius for a tile of this width: 16dp at the design width, proportionally less when smaller. */
+    /** Corner radius for a tile of this width: 12dp (24px) at the design width, proportionally less when smaller. */
     static float cornerRadius(int tileWidthPx, float density) {
-        return 15f * density * Math.min(1f, tileWidthPx / (DESIGN_W_DP * density));
+        return 12f * density * Math.min(1f, tileWidthPx / (DESIGN_W_DP * density));
     }
 
     static final class Holder extends RecyclerView.ViewHolder {
@@ -464,7 +464,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                 name.animate().cancel();
                 float scale = !animations ? 1f : FOCUS_SCALE;
                 float s = focused ? scale : 1f;
-                float liftZ = focused ? 12f * density : 0f;
+                float liftZ = focused ? 15f * density : 0f;
                 if (!animations) {
                     view.setScaleX(s);
                     view.setScaleY(s);

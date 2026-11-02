@@ -59,10 +59,9 @@
     <!-- Grid rows left visible under the dock on the home screen. 0 = dock sits at the very bottom. -->
     <integer name="rows_below_dock">0</integer>
 
-    <!-- Tiles per row in the grid; the dock always has this many slots. Tiles are 180dp wide at 4 columns and
-         shrink to fit from 5 up (about 144dp at 5, 117dp at 6 on a 1080p TV).
-         tvOS 18 redesign: 6, the kit's home grid (six 250x150px icons per row). Was 4. -->
-    <integer name="columns">6</integer>
+    <!-- Tiles per row in the grid; the dock always has this many slots.
+         Apple TV specification (1920x1080 base): 5 (large mode, 300x180px) or 6. -->
+    <integer name="columns">5</integer>
 
     <!-- Basic motion is on; advanced effects are opt-in in the launcher's own Settings screen. -->
     <bool name="animations">true</bool>

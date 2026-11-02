@@ -310,23 +310,23 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             int tileW = AppAdapter.tileWidthPx(inner, COLUMNS, density);
             int tileH = AppAdapter.tileHeightPx(tileW);
             int itemH = AppAdapter.itemHeightPx(tileH, density);
-            int dockRow = itemH + (int) ((12 + 18) * density);   // item height plus DockDecoration offsets
+            int dockRow = itemH + (int) ((10 + 26) * density);   // item height plus DockDecoration offsets
             int gridRows = itemH * rowsBelowDock;
             int want;
             if (cfg.dockPaddingTop >= 0) {
                 want = (int) (cfg.dockPaddingTop * density);
             } else {
                 int totalApps = adapter != null ? adapter.getAppCount() : 5;
-                if (totalApps <= 6) {
-                    // When <= 6 apps (dock only, no apps below to scroll down to),
-                    // dock bottom sits gracefully above the bottom screen edge.
-                    int targetTop = h - tileH - (int) (82 * density);
-                    want = Math.max((int) (80 * density), targetTop);
+                if (totalApps <= COLUMNS) {
+                    // When <= COLUMNS apps (dock only, no apps below to scroll down to),
+                    // dock bottom sits gracefully 40-60px above the bottom screen edge (prefer 50px = 25dp).
+                    int targetTop = h - tileH - (int) (35 * density);
+                    want = Math.max((int) (60 * density), targetTop);
                 } else {
-                    // When > 6 apps, keep the larger bottom margin so users see/hint at rows below.
-                    int bottomPad = (int) (36 * density);
+                    // When > COLUMNS apps, keep standard bottom margin (25dp = 50px) so users see/hint at rows below.
+                    int bottomPad = (int) (25 * density);
                     int targetTop = h - dockRow - gridRows - bottomPad;
-                    want = Math.max((int) (80 * density), targetTop);
+                    want = Math.max((int) (60 * density), targetTop);
                 }
             }
             if (grid.getPaddingTop() != want) {
@@ -956,7 +956,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View item = (View) card.getParent();
         if (position < COLUMNS) {
             // Dock: park it at the bottom of the screen and show the top shelf for this app.
-            int decoratedTop = item.getTop() - (int) (12 * density);
+            int decoratedTop = item.getTop() - (int) (10 * density);
             int dy = decoratedTop - grid.getPaddingTop();
             // A 1px mismatch used to start a scroll on every dock move. Only scroll when the row is
             // actually off; reduced motion does it in one jump so it does not fight the highlight.

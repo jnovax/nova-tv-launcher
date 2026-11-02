@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One home tile: tvOS 250x150px app icon (125x75dp, r15dp). The code sizes the card per column count
-     and scales it on focus (kit: x1.2267 with a 0/30/40px shadow at 35%, see dimens tvos_focus_scale_icon). -->
+<!-- One home tile: Apple TV 300x180px app icon (150x90dp, r12dp). Sized per column count
+     and scaled on focus (370x222px, scale ~1.2333x with elevation and soft drop shadow). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
-    android:paddingBottom="8dp"
+    android:paddingBottom="12dp"
     android:clipChildren="false"
     android:clipToPadding="false">
 
@@ -30,8 +30,8 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"
             android:visibility="gone"
@@ -54,18 +54,18 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- App name under the focused icon (tvOS Caption 1 semibold); faded in by code. -->
+    <!-- App name under the focused icon (tvOS Caption 1 semibold); faded in by code outside glass panel. -->
     <TextView
         android:id="@+id/name"
-        android:layout_width="149dp"
-        android:layout_height="18dp"
+        android:layout_width="@dimen/tvos_icon_w"
+        android:layout_height="20dp"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="94dp"
+        android:layout_marginTop="106dp"
         android:gravity="center"
         android:singleLine="true"
         android:ellipsize="end"
         android:alpha="0"
-        android:translationY="-6dp"
+        android:translationY="-4dp"
         android:textColor="@color/tvos_label_primary"
         android:textSize="@dimen/tvos_text_caption1"
         android:fontFamily="sans-serif-medium"

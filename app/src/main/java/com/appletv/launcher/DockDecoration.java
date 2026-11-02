@@ -9,8 +9,12 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-/** Draws the tvOS style lighter band behind the first (dock) row and adds a gap below it. */
+/** Draws the tvOS style glass platter behind the first (dock) row and adds offsets for the label. */
 public class DockDecoration extends RecyclerView.ItemDecoration {
+
+    static final float PAD_H_DP = 12f; // 24px inner horizontal padding (spec: 20-28px)
+    static final float PAD_V_DP = 10f; // 20px inner vertical padding (spec: 16-24px)
+    static final float RADIUS_DP = 14f; // 28px corner radius (spec: 24-32px)
 
     private final int dockSize;
     private final float density;
@@ -32,15 +36,14 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
                                @NonNull RecyclerView.State state) {
         int pos = parent.getChildAdapterPosition(view);
         if (pos >= 0 && pos < dockSize) {
-            outRect.top = (int) (12 * density);
-            outRect.bottom = (int) (18 * density);
+            outRect.top = (int) (PAD_V_DP * density);
+            outRect.bottom = (int) ((PAD_V_DP + 16f) * density);
         }
     }
 
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         View firstChild = null;
-        View secondChild = null;
         View lastChild = null;
         int minPos = Integer.MAX_VALUE;
         int maxPos = Integer.MIN_VALUE;
@@ -64,15 +67,6 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         }
         if (firstChild == null || lastChild == null) return;
 
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            View child = parent.getChildAt(i);
-            int pos = parent.getChildAdapterPosition(child);
-            if (pos == minPos + 1 && child.getVisibility() == View.VISIBLE) {
-                secondChild = child;
-                break;
-            }
-        }
-
         View firstCard = firstChild.findViewById(R.id.card);
         View lastCard = lastChild.findViewById(R.id.card);
         if (firstCard == null || lastCard == null) return;
@@ -87,31 +81,17 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         float cardTop = firstChild.getTop() + firstCard.getTop();
         float cardBottom = cardTop + cardH;
 
-        float gap;
-        if (secondChild != null) {
-            View secondCard = secondChild.findViewById(R.id.card);
-            float card1Left = secondChild.getLeft() + secondCard.getLeft();
-            float card0Right = card0Left + cardW;
-            gap = card1Left - card0Right;
-        } else {
-            gap = 26f * density;
-        }
-        if (gap <= 0) {
-            gap = 26f * density;
-        }
+        float padH = PAD_H_DP * density;
+        float padV = PAD_V_DP * density;
 
-        // Distance(Dock Left -> Card 0) = gap
-        // Distance(Card Last -> Dock Right) = gap
-        // Distance(Dock Top -> Card Top) = gap
-        // Distance(Card Bottom -> Dock Bottom) = gap
-        float l = card0Left - gap;
-        float r = cardLastRight + gap;
-        float t = cardTop - gap;
-        float b = cardBottom + gap;
+        // Dock platter covers the icons with standard inner padding
+        float l = card0Left - padH;
+        float r = cardLastRight + padH;
+        float t = cardTop - padV;
+        float b = cardBottom + padV;
 
         rect.set(l, t, r, b);
-        float cardRadius = AppAdapter.cornerRadius((int) cardW, density);
-        float radius = cardRadius + gap * 0.5f;
+        float radius = RADIUS_DP * density;
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
     }
