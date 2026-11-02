@@ -459,6 +459,111 @@
       color: #ff453a;
     }
 
+    /* tvOS Alert Confirmation Modal */
+    .confirm-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      z-index: 2500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: alertFadeIn 0.2s cubic-bezier(0.2, 1, 0.3, 1);
+    }
+    .confirm-modal.active {
+      display: flex;
+    }
+
+    @keyframes alertFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .confirm-card {
+      background: rgba(30, 30, 36, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 26px;
+      padding: 32px 36px 28px;
+      width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.85);
+    }
+
+    .confirm-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: rgba(255, 69, 58, 0.15);
+      border: 1px solid rgba(255, 69, 58, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ff453a;
+      margin-bottom: 16px;
+    }
+
+    .confirm-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .confirm-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.45;
+      margin-bottom: 24px;
+    }
+
+    .confirm-btn-group {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .confirm-btn {
+      flex: 1;
+      padding: 12px 0;
+      border-radius: 14px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s cubic-bezier(0.2, 1, 0.3, 1);
+    }
+
+    .confirm-btn-danger {
+      background: #ff453a;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(255, 69, 58, 0.4);
+    }
+    .confirm-btn-danger:hover {
+      background: #ff5c52;
+      transform: scale(1.03);
+    }
+
+    .confirm-btn-cancel {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .confirm-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: scale(1.03);
+    }
+
     /* tvOS Sleek Pill Toast */
     .tv-toast {
       position: absolute;
@@ -1114,7 +1219,7 @@
             <button class="small-action-btn sleep-btn" onclick="putToSleep()" title="Sleep / Standby">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
-            <button class="small-action-btn restart-btn" onclick="restartLauncher()" title="Restart Launcher">
+            <button class="small-action-btn restart-btn" onclick="requestRestart()" title="Restart Launcher">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             </button>
           </div>
@@ -1206,6 +1311,21 @@
 
         <!-- Gallery Grid -->
         <div class="wallpaper-grid" id="wallpaperGallery"></div>
+      </div>
+    </div>
+
+    <!-- Restart Confirmation Modal Alert -->
+    <div class="confirm-modal" id="restartConfirmModal" onclick="handleConfirmModalBackdrop(event)">
+      <div class="confirm-card">
+        <div class="confirm-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </div>
+        <div class="confirm-title">Restart Nova Launcher?</div>
+        <div class="confirm-subtitle">Are you sure you want to restart? The dock layout, package cache, and app grid will reload fresh.</div>
+        <div class="confirm-btn-group">
+          <button class="confirm-btn confirm-btn-cancel" onclick="closeRestartModal()">Cancel</button>
+          <button class="confirm-btn confirm-btn-danger" onclick="confirmRestart()">Restart</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1470,7 +1590,28 @@
       showToast(`Volume: ${val}%`);
     }
 
-    function restartLauncher() {
+    function requestRestart() {
+      const modal = document.getElementById('restartConfirmModal');
+      if (modal) {
+        modal.classList.add('active');
+      }
+    }
+
+    function closeRestartModal() {
+      const modal = document.getElementById('restartConfirmModal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+    }
+
+    function handleConfirmModalBackdrop(e) {
+      if (e.target.id === 'restartConfirmModal') {
+        closeRestartModal();
+      }
+    }
+
+    function confirmRestart() {
+      closeRestartModal();
       showToast('Restarting Apple TV Launcher...');
       closeAllDropdowns();
       const dockRowEl = document.getElementById('dockRow');
@@ -1623,7 +1764,7 @@
 
     // Close popups when clicking anywhere outside
     viewportFrame.addEventListener('click', (e) => {
-      if (e.target.closest('.control-panel-popup') || e.target.closest('.menu-pill') || e.target.closest('.wallpaper-modal') || e.target.closest('.top-left-badge')) {
+      if (e.target.closest('.control-panel-popup') || e.target.closest('.menu-pill') || e.target.closest('.wallpaper-modal') || e.target.closest('.top-left-badge') || e.target.closest('#restartConfirmModal')) {
         return;
       }
       closeAllDropdowns();
@@ -1633,6 +1774,18 @@
     window.addEventListener('keydown', (e) => {
       if (sleepOverlay.classList.contains('active')) {
         wakeFromSleep();
+        return;
+      }
+
+      const restartModal = document.getElementById('restartConfirmModal');
+      if (restartModal && restartModal.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closeRestartModal();
+          e.preventDefault();
+        } else if (e.key === 'Enter') {
+          confirmRestart();
+          e.preventDefault();
+        }
         return;
       }
 
