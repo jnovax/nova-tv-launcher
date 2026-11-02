@@ -556,7 +556,7 @@
 <body class="deep-shadow">
 
   <!-- 1920x1080 Simulated TV Canvas -->
-  <div id="viewport-frame">
+  <div id="viewport-frame" class="scrim-disabled">
     <!-- Wallpaper Backdrop -->
     <div class="tv-wallpaper" id="wallpaper"></div>
 
@@ -640,7 +640,7 @@
     <button class="tool-btn active" id="btnMode5" onclick="setMode(5)">5 Icons (300×180)</button>
     <button class="tool-btn" id="btnMode6" onclick="setMode(6)">6 Icons (242×145)</button>
     <button class="tool-btn" onclick="openWallpaperModal()">🖼️ Wallpapers</button>
-    <button class="tool-btn active" id="btnScrim" onclick="toggleScrim()">Protection Scrim: ON</button>
+    <button class="tool-btn" id="btnScrim" onclick="toggleScrim()">Protection Scrim: OFF</button>
     <button class="tool-btn active" id="btnShadow" onclick="toggleShadow()">Deep Shadow: ON</button>
     <button class="tool-btn" id="btnSafeArea" onclick="toggleSafeArea()">Safe Area</button>
     <div class="key-hint">
@@ -713,7 +713,7 @@
     let currentMode = 5;
     let focusedIndex = 0;
     let selectedWallpaperIndex = 1; // Start with Chiikawa (Light) to immediately test legibility!
-    let scrimActive = true;
+    let scrimActive = false;
     let deepShadowActive = true;
 
     const dockContainer = document.getElementById('dockContainer');

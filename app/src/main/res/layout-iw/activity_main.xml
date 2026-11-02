@@ -22,7 +22,8 @@
         android:layout_height="match_parent"
         android:alpha="0" />
 
-    <!-- Top Shelf title (right-aligned for Hebrew), positioned above the dock in code. -->
+    <!-- Top Shelf title (right-aligned for Hebrew), positioned above the dock in code.
+         Deep shadow ensures contrast across light and dark wallpapers. -->
     <TextView
         android:id="@+id/heroName"
         android:layout_width="wrap_content"
@@ -36,9 +37,9 @@
         android:fontFamily="sans-serif-black"
         android:letterSpacing="-0.02"
         android:includeFontPadding="false"
-        android:shadowColor="#73000000"
-        android:shadowDy="1"
-        android:shadowRadius="6"
+        android:shadowColor="#F2000000"
+        android:shadowDy="3"
+        android:shadowRadius="12"
         android:singleLine="true" />
 
     <LinearLayout

@@ -23,7 +23,7 @@
         android:alpha="0" />
 
     <!-- Top Shelf title: the focused dock app's name, positioned above the dock in code.
-         tvOS Title 1 Emphasized (76px bold). -->
+         tvOS Title 1 Emphasized (76px bold). Deep shadow ensures contrast across light and dark wallpapers. -->
     <TextView
         android:id="@+id/heroName"
         android:layout_width="wrap_content"
@@ -35,9 +35,9 @@
         android:fontFamily="sans-serif-black"
         android:letterSpacing="-0.02"
         android:includeFontPadding="false"
-        android:shadowColor="#73000000"
-        android:shadowDy="1"
-        android:shadowRadius="6"
+        android:shadowColor="#F2000000"
+        android:shadowDy="3"
+        android:shadowRadius="12"
         android:singleLine="true" />
 
     <LinearLayout
@@ -107,9 +107,9 @@
                     android:textColor="#B3FFFFFF"
                     android:textSize="@dimen/tvos_text_caption1"
                     android:fontFamily="sans-serif-medium"
-                    android:shadowColor="#73000000"
-                    android:shadowDy="1"
-                    android:shadowRadius="6" />
+                    android:shadowColor="#CC000000"
+                    android:shadowDy="2"
+                    android:shadowRadius="8" />
 
                 <View
                     android:layout_width="3dp"
@@ -152,9 +152,9 @@
                         android:textColor="#B3FFFFFF"
                         android:textSize="@dimen/tvos_text_caption1"
                         android:fontFamily="sans-serif-medium"
-                        android:shadowColor="#73000000"
-                        android:shadowDy="1"
-                        android:shadowRadius="6" />
+                        android:shadowColor="#CC000000"
+                        android:shadowDy="2"
+                        android:shadowRadius="8" />
                 </LinearLayout>
             </LinearLayout>
 
