@@ -378,16 +378,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
-        if (advancedEffects) {
-            View[] buttons = btnWallpaper != null
-                    ? new View[]{btnWallpaper, btnInputs, btnWifi, btnSettings}
-                    : new View[]{btnInputs, btnWifi, btnSettings};
-            for (View button : buttons) {
-                button.setOnFocusChangeListener((view, focused) -> view.animate()
-                        .scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
-                        .setDuration(160).start());
-            }
-        }
+        // Focus scaling is handled cleanly and declaratively by @animator/tvos_focus_pill on TopButton style.
         if (festive) applyFestiveSkin((TextView) btnInputs, (TextView) btnSettings);
 
         // Hide the hero name when focus leaves the tiles.

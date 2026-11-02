@@ -158,22 +158,25 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- tvOS 18 Menu Bar platter (70px): time, then the controls. -->
+            <!-- tvOS 18 Menu Bar platter: time, then the controls. -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/tvos_menubar_height"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/menu_bar_bg">
+                android:background="@drawable/menu_bar_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="4dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
                 <TextClock
                     android:id="@+id/clock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8.5dp"
                     android:format12Hour="h:mm"
                     android:format24Hour="HH:mm"
-                    android:textColor="#BFFFFFFF"
+                    android:textColor="#E6FFFFFF"
                     android:textSize="@dimen/tvos_text_caption1"
                     android:fontFamily="sans-serif-medium"
                     android:includeFontPadding="false" />
@@ -194,8 +197,10 @@
                     android:id="@+id/topButtons"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6.5dp"
-                    android:orientation="horizontal">
+                    android:layout_marginStart="8dp"
+                    android:orientation="horizontal"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <TextView
                         android:id="@+id/btnWallpaper"

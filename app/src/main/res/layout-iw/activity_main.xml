@@ -62,13 +62,20 @@
                 android:layout_height="@dimen/tvos_menubar_height"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/menu_bar_bg">
+                android:background="@drawable/menu_bar_bg"
+                android:paddingStart="4dp"
+                android:paddingEnd="12dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
                 <LinearLayout
                     android:id="@+id/topButtons"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_marginEnd="8dp"
+                    android:orientation="horizontal"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <TextView
                         android:id="@+id/btnSettings"

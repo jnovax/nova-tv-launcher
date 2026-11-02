@@ -16,9 +16,9 @@
     <dimen name="tvos_dock_radius">14dp</dimen>
     <dimen name="tvos_dock_pad_h">12dp</dimen>
     <dimen name="tvos_dock_pad_v">10dp</dimen>
-    <!-- Menu bar platter 70px, controls 58px -->
-    <dimen name="tvos_menubar_height">35dp</dimen>
-    <dimen name="tvos_menubar_control">29dp</dimen>
+    <!-- Menu bar platter 72px (36dp), controls 56px (28dp) -->
+    <dimen name="tvos_menubar_height">36dp</dimen>
+    <dimen name="tvos_menubar_control">28dp</dimen>
     <!-- Panels (Control Center, alerts): r48, padding 24, 96px button unit, 16px gap, CC 480px wide -->
     <dimen name="tvos_panel_radius">24dp</dimen>
     <dimen name="tvos_panel_padding">12dp</dimen>
