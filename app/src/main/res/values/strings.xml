@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Apple TV Launcher</string>
+    <string name="mode_kid">Kid Mode</string>
+    <string name="mode_parent">Parent</string>
+    <string name="mode_switch_title">Profile Mode</string>
+    <string name="mode_switch_parent">Switch to Parent Mode</string>
+    <string name="mode_lock_kid">Lock to Kid Mode</string>
+    <string name="mode_parent_desc">Full access enabled</string>
+    <string name="tv_parental_control_missing">FamilyTime Parental Control is not installed. Tap again to toggle demo mode.</string>
     <string name="wallpaper">Wallpaper</string>
     <string name="inputs">Inputs</string>
     <string name="wifi">Wi-Fi</string>

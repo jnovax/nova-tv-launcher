@@ -203,6 +203,13 @@
                     android:clipToPadding="false">
 
                     <TextView
+                        android:id="@+id/btnMode"
+                        style="@style/TopButton"
+                        android:text="@string/mode_kid"
+                        android:drawableStart="@drawable/ic_mode_kid"
+                        android:nextFocusDown="@+id/grid" />
+
+                    <TextView
                         android:id="@+id/btnInputs"
                         style="@style/TopButton"
                         android:text="@string/inputs"

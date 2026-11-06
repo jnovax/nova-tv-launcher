@@ -3,6 +3,7 @@ package com.appletv.launcher;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -107,8 +108,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean advancedEffects;
     private boolean ambientGlow;
     private TextView greeting;
+    private TextView btnMode;
     private View btnInputs;
     private TextView btnWifi;
+    private View btnSettings;
+    private BroadcastReceiver modeReceiver;
     private TextView shamsiDate;
     private boolean shamsi;
     /** Optional time-of-day backdrop (config.xml, sky_intensity); 0 keeps it hidden. */
@@ -333,19 +337,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         });
 
+        btnMode = findViewById(R.id.btnMode);
         btnInputs = findViewById(R.id.btnInputs);
-        View btnSettings = findViewById(R.id.btnSettings);
+        btnSettings = findViewById(R.id.btnSettings);
+        if (btnMode != null) {
+            btnMode.setOnClickListener(v -> handleModeButtonClick());
+        }
         btnInputs.setOnClickListener(v -> toggleInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
         btnWifi.setOnLongClickListener(v -> {
             open(systemIntent(Settings.ACTION_WIFI_SETTINGS));
             return true;
         });
-        btnSettings.setOnClickListener(v -> startActivity(new Intent(this, QuickSettingsActivity.class)));
-        btnSettings.setOnLongClickListener(v -> {
-            showSettingsMenu();
-            return true;
-        });
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> startActivity(new Intent(this, QuickSettingsActivity.class)));
+            btnSettings.setOnLongClickListener(v -> {
+                showSettingsMenu();
+                return true;
+            });
+        }
 
         // Keep focus on the top bar at its ends and at the top: Android's focus finder would otherwise
         // jump to a tile far below when there is nothing in that direction.
@@ -358,17 +368,54 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 focusTile(lastFocused % COLUMNS);
                 return true;
             }
-            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi;
-            int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
-            int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
+            int firstButton = (btnMode != null && btnMode.getVisibility() == View.VISIBLE)
+                    ? R.id.btnMode : (btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi);
+            int lastButton = (btnSettings != null && btnSettings.getVisibility() == View.VISIBLE)
+                    ? R.id.btnSettings : R.id.btnWifi;
+            int leftButton = rtlMenuBar ? lastButton : firstButton;
+            int rightButton = rtlMenuBar ? firstButton : lastButton;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
+        if (btnMode != null) btnMode.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
-        btnSettings.setOnKeyListener(pillKeys);
+        if (btnSettings != null) btnSettings.setOnKeyListener(pillKeys);
         // Focus scaling is handled cleanly and declaratively by @animator/tvos_focus_pill on TopButton style.
         if (festive) applyFestiveSkin((TextView) btnInputs, (TextView) btnSettings);
+
+        modeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null) return;
+                String action = intent.getAction();
+                if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                    ModeManager.setMode(MainActivity.this, ModeManager.MODE_KID);
+                    updateModeUI();
+                    reloadApps(false);
+                } else if (ModeManager.ACTION_MODE_CHANGED.equals(action)) {
+                    String newMode = intent.getStringExtra(ModeManager.EXTRA_MODE);
+                    if (newMode != null) {
+                        ModeManager.setMode(MainActivity.this, newMode);
+                    }
+                    ArrayList<String> customList = intent.getStringArrayListExtra(ModeManager.EXTRA_ALLOWED_PACKAGES);
+                    if (customList != null) {
+                        ModeManager.setCustomWhitelist(MainActivity.this, new HashSet<>(customList));
+                    }
+                    updateModeUI();
+                    reloadApps(true);
+                }
+            }
+        };
+        IntentFilter modeFilter = new IntentFilter();
+        modeFilter.addAction(ModeManager.ACTION_MODE_CHANGED);
+        modeFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(modeReceiver, modeFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(modeReceiver, modeFilter);
+        }
+        updateModeUI();
 
         // Hide the hero name when focus leaves the tiles.
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
@@ -396,6 +443,52 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             openLauncherSettingsIfAsked(getIntent());
         }
         handleLauncherActions(getIntent());
+    }
+
+    private void updateModeUI() {
+        if (btnMode == null) return;
+        boolean kidMode = ModeManager.isKidMode(this);
+        if (kidMode) {
+            btnMode.setText(R.string.mode_kid);
+            btnMode.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_mode_kid, 0, 0, 0);
+            if (btnSettings != null) btnSettings.setVisibility(View.GONE);
+        } else {
+            btnMode.setText(R.string.mode_parent);
+            btnMode.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_mode_parent, 0, 0, 0);
+            if (btnSettings != null) btnSettings.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void handleModeButtonClick() {
+        if (ModeManager.isKidMode(this)) {
+            Intent intent = new Intent(ModeManager.ACTION_AUTHENTICATE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.mode_switch_title)
+                        .setMessage(R.string.tv_parental_control_missing)
+                        .setPositiveButton(R.string.mode_switch_parent, (dialog, which) -> {
+                            ModeManager.setMode(this, ModeManager.MODE_PARENT);
+                            updateModeUI();
+                            reloadApps(true);
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+            }
+        } else {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.mode_switch_title)
+                    .setMessage(R.string.mode_parent_desc)
+                    .setPositiveButton(R.string.mode_lock_kid, (dialog, which) -> {
+                        ModeManager.setMode(this, ModeManager.MODE_KID);
+                        updateModeUI();
+                        reloadApps(true);
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+        }
     }
 
     private boolean handleLauncherActions(Intent intent) {
@@ -785,6 +878,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateGreeting();
         updateWifiLabel();
         updateInputsButton();
+        updateModeUI();
         sky.update();
         handler.postDelayed(minuteTick, MINUTE_MS);
         if (festive && diya != null) {
@@ -893,6 +987,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (modeReceiver != null) {
+            unregisterReceiver(modeReceiver);
+            modeReceiver = null;
+        }
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
