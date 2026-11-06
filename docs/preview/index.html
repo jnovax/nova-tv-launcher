@@ -962,6 +962,185 @@
       font-family: inherit;
       border: 0.5px solid rgba(255, 255, 255, 0.25);
     }
+    /* Profile Mode Pill */
+    #pillMode {
+      background: rgba(20, 184, 166, 0.22);
+      border-color: rgba(20, 184, 166, 0.45);
+      color: #5eead4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #pillMode:hover {
+      background: rgba(20, 184, 166, 0.35);
+      border-color: rgba(20, 184, 166, 0.75);
+    }
+    #pillMode.mode-parent {
+      background: rgba(59, 130, 246, 0.22);
+      border-color: rgba(59, 130, 246, 0.45);
+      color: #93c5fd;
+    }
+    #pillMode.mode-parent:hover {
+      background: rgba(59, 130, 246, 0.35);
+      border-color: rgba(59, 130, 246, 0.75);
+    }
+
+    /* Auth & Quiz Modals (tvOS Liquid Glass Alert) */
+    .tv-full-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 6, 12, 0.88);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      z-index: 3000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      animation: alertFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tv-full-overlay.active {
+      display: flex;
+    }
+
+    .tv-glass-card {
+      background: rgba(30, 32, 42, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 32px;
+      padding: 44px 50px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* OTP Inputs */
+    .otp-digits-row {
+      display: flex;
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .otp-box {
+      width: 58px;
+      height: 72px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .otp-box.active {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.2);
+      transform: scale(1.06);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    .otp-box.filled {
+      border-color: rgba(255, 255, 255, 0.6);
+      color: #60a5fa;
+    }
+
+    .demo-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .keypad-btn {
+      width: 80px;
+      height: 54px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .keypad-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+    .keypad-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Quiz Card */
+    .quiz-card {
+      width: 1080px;
+      max-width: 90vw;
+      padding: 44px 60px;
+    }
+    .media-pause-pill {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .quiz-question-text {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 30px;
+      color: #f8fafc;
+    }
+    .quiz-options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      width: 100%;
+      margin-bottom: 26px;
+    }
+    .quiz-opt-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      padding: 22px 28px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .quiz-opt-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #38bdf8;
+      transform: scale(1.03);
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+    }
+    .quiz-opt-btn.correct {
+      background: rgba(34, 197, 94, 0.35) !important;
+      border-color: #22c55e !important;
+      color: #86efac !important;
+    }
+    .quiz-opt-btn.wrong {
+      background: rgba(239, 68, 68, 0.35) !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+    }
   </style>
 </head>
 <body class="deep-shadow">
@@ -1003,6 +1182,12 @@
         <div class="greeting-date">Good morning &nbsp;·&nbsp; Monday, November 2</div>
         <div class="menu-bar-platter">
           <span style="font-weight: 600;">9:41 AM</span>
+
+          <!-- Profile Mode Pill (Kid vs Parent) -->
+          <div class="menu-pill" id="pillMode" onclick="handleModePillClick()">
+            <span id="pillModeIcon" style="font-size: 14px;">🧒</span>
+            <span id="pillModeText">Kid Mode</span>
+          </div>
 
           <!-- Inputs Pill -->
           <div class="menu-pill" id="pillInputs" onclick="toggleDropdown('inputs')">
@@ -1339,6 +1524,111 @@
         </div>
       </div>
     </div>
+
+    <!-- 1. Google Authenticator (TOTP) Auth Modal -->
+    <div class="tv-full-overlay" id="authModal" onclick="handleAuthModalBackdrop(event)">
+      <div class="tv-glass-card" style="width: 580px;">
+        <div style="font-size: 42px; margin-bottom: 8px;">🔐</div>
+        <div style="font-size: 26px; font-weight: 700; margin-bottom: 6px;">Google Authenticator</div>
+        <div style="font-size: 14px; color: rgba(255,255,255,0.7); max-width: 440px; margin-bottom: 14px;">
+          Mở ứng dụng Google Authenticator trên điện thoại và nhập mã OTP 6 số để mở khóa <b>Chế độ Phụ huynh</b>:
+        </div>
+
+        <!-- 6 OTP Boxes -->
+        <div class="otp-digits-row">
+          <div class="otp-box active" id="otp-0">_</div>
+          <div class="otp-box" id="otp-1">_</div>
+          <div class="otp-box" id="otp-2">_</div>
+          <div class="otp-box" id="otp-3">_</div>
+          <div class="otp-box" id="otp-4">_</div>
+          <div class="otp-box" id="otp-5">_</div>
+        </div>
+
+        <!-- Virtual TV Keypad -->
+        <div class="demo-keypad">
+          <button class="keypad-btn" onclick="pressOtpKey('1')">1</button>
+          <button class="keypad-btn" onclick="pressOtpKey('2')">2</button>
+          <button class="keypad-btn" onclick="pressOtpKey('3')">3</button>
+          <button class="keypad-btn" onclick="pressOtpKey('4')">4</button>
+          <button class="keypad-btn" onclick="pressOtpKey('5')">5</button>
+          <button class="keypad-btn" onclick="pressOtpKey('6')">6</button>
+          <button class="keypad-btn" onclick="pressOtpKey('7')">7</button>
+          <button class="keypad-btn" onclick="pressOtpKey('8')">8</button>
+          <button class="keypad-btn" onclick="pressOtpKey('9')">9</button>
+          <button class="keypad-btn" onclick="pressOtpClear()" style="font-size: 15px; color: #f87171;">Clear</button>
+          <button class="keypad-btn" onclick="pressOtpKey('0')">0</button>
+          <button class="keypad-btn" onclick="submitOtp()" style="font-size: 15px; color: #60a5fa;">OK</button>
+        </div>
+
+        <button class="confirm-btn confirm-btn-cancel" style="width: 100%; margin-bottom: 8px; justify-content: center; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); color: #93c5fd;" onclick="autoFillValidOtp()">
+          ⚡ Điền nhanh mã Google OTP hợp lệ (Demo)
+        </button>
+        <button class="confirm-btn confirm-btn-cancel" style="width: 100%; justify-content: center;" onclick="closeAuthModal()">
+          Đóng (ESC)
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Parent Mode Quick Options Modal -->
+    <div class="confirm-modal" id="parentOptionsModal" onclick="handleParentOptionsBackdrop(event)">
+      <div class="confirm-card">
+        <div class="confirm-icon" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">
+          👨‍👩‍👧
+        </div>
+        <div class="confirm-title">Chế độ Phụ Huynh</div>
+        <div class="confirm-subtitle">Toàn bộ ứng dụng đã được mở khóa. Các bộ đếm giờ giới hạn đang tạm dừng.</div>
+        <div class="confirm-btn-group">
+          <button class="confirm-btn confirm-btn-cancel" onclick="closeParentOptionsModal()">Đóng</button>
+          <button class="confirm-btn confirm-btn-danger" style="background: rgba(20, 184, 166, 0.25); border-color: rgba(20, 184, 166, 0.6); color: #2dd4bf;" onclick="lockToKidMode()">🔒 Khóa về Kid Mode</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Quiz Break Overlay Modal (Full-Screen 15-Min Break) -->
+    <div class="tv-full-overlay" id="quizModal">
+      <div class="tv-glass-card quiz-card">
+        <!-- Media Paused Banner -->
+        <div class="media-pause-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          <span>Video SmartTube / YouTube đã tạm dừng · AudioFocus: PAUSED</span>
+        </div>
+
+        <div style="font-size: 20px; font-weight: 600; color: #38bdf8; margin-bottom: 8px; letter-spacing: 0.5px;">
+          ⏱️ GIỜ GIẢI LAO ĐỊNH KỲ (15 PHÚT)
+        </div>
+        <div class="quiz-question-text" id="quizQuestion">
+          🍎🍎 + 🍎🍎🍎 = ? <br>
+          <span style="font-size: 22px; font-weight: 500; color: rgba(255,255,255,0.75);">Bé có 2 quả táo, mẹ cho thêm 3 quả nữa. Hỏi bé có tất cả mấy quả táo?</span>
+        </div>
+
+        <!-- 4 Interactive Quiz Options -->
+        <div class="quiz-options-grid">
+          <button class="quiz-opt-btn" id="quiz-opt-0" onclick="handleQuizAnswer(0)">
+            <span style="opacity: 0.5;">A.</span> <span>3 quả táo</span>
+          </button>
+          <button class="quiz-opt-btn" id="quiz-opt-1" onclick="handleQuizAnswer(1)">
+            <span style="opacity: 0.5;">B.</span> <span>4 quả táo</span>
+          </button>
+          <button class="quiz-opt-btn" id="quiz-opt-2" onclick="handleQuizAnswer(2)">
+            <span style="opacity: 0.5;">C.</span> <span>5 quả táo ⭐</span>
+          </button>
+          <button class="quiz-opt-btn" id="quiz-opt-3" onclick="handleQuizAnswer(3)">
+            <span style="opacity: 0.5;">D.</span> <span>6 quả táo</span>
+          </button>
+        </div>
+
+        <!-- Quiz Status Alert Message -->
+        <div id="quizAlert" style="font-size: 18px; font-weight: 600; min-height: 28px; margin-bottom: 16px;"></div>
+
+        <!-- Footer Bypass Option -->
+        <div style="border-top: 1px solid rgba(255,255,255,0.12); width: 100%; padding-top: 18px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 13px; color: rgba(255,255,255,0.5);">Trẻ trả lời đúng để video tiếp tục phát</span>
+          <button class="modal-close-btn" style="background: rgba(255,255,255,0.12); font-size: 13.5px;" onclick="bypassQuizWithParentAuth()">
+            🔑 Bố Mẹ mở khóa khẩn cấp (TOTP)
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Interactive Inspector Controls -->
@@ -1351,6 +1641,16 @@
     <button class="tool-btn" onclick="toggleDropdown('settings')">⚙️ Settings</button>
     <button class="tool-btn active" id="btnShadow" onclick="toggleShadow()">Deep Shadow: ON</button>
     <button class="tool-btn" id="btnSafeArea" onclick="toggleSafeArea()">Safe Area</button>
+    <div style="width: 1px; height: 22px; background: rgba(255,255,255,0.2); margin: 0 4px;"></div>
+    <button class="tool-btn active" id="btnParentalToggle" onclick="toggleParentalService()" style="background: rgba(20, 184, 166, 0.25); border-color: rgba(20, 184, 166, 0.6); color: #2dd4bf;">
+      🛡️ Parental Control: CÓ
+    </button>
+    <button class="tool-btn" id="btnQuickModeToggle" onclick="quickToggleProfileMode()">
+      Chế độ: <span id="toolbarModeText">🧒 Kid</span>
+    </button>
+    <button class="tool-btn" onclick="triggerQuizBreak()" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #f87171;">
+      ⏱️ Thử Bài kiểm tra 15p
+    </button>
     <div class="key-hint">
       <span>Keys:</span>
       <kbd>I: Inputs</kbd> <kbd>N: Wi-Fi</kbd> <kbd>S: Settings</kbd> <kbd>W: Wallpapers</kbd>
@@ -1358,50 +1658,85 @@
   </div>
 
   <script>
-    const APPS = [
+    const ALL_APPS = [
       {
         id: 'smarttube',
         name: 'SmartTube',
         bg: 'linear-gradient(135deg, #FF0033 0%, #B3001F 100%)',
-        iconSvg: `<svg width="84" height="60" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="6" fill="#fff"/><polygon points="11,6 18,10 11,14" fill="#E60000"/></svg>`
+        iconSvg: `<svg width="84" height="60" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="6" fill="#fff"/><polygon points="11,6 18,10 11,14" fill="#E60000"/></svg>`,
+        isKidSafe: true
       },
       {
-        id: 'spotify',
-        name: 'Spotify',
-        bg: 'linear-gradient(135deg, #1DB954 0%, #107834 100%)',
-        iconSvg: `<svg width="74" height="74" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M17.5 15.2c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.9-9.3-1-.4.1-.7-.2-.8-.5-.1-.4.2-.7.5-.8 4.1-.9 7.6-.5 10.3 1.1.4.3.4.7.2 1zm1.2-2.7c-.2.4-.7.5-1.1.3-2.9-1.8-7.3-2.3-10.7-1.3-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1 3.9-1.2 8.8-.6 12 1.4.4.2.5.7.3 1.1zm.1-2.9c-3.4-2-9.1-2.2-12.4-1.2-.5.2-1.1-.1-1.2-.6-.2-.5.1-1.1.6-1.2 3.8-1.2 10.1-.9 14.1 1.4.5.3.6.9.3 1.4-.3.4-.9.5-1.4.2z" fill="#1DB954"/></svg>`
+        id: 'ytkids',
+        name: 'YouTube Kids',
+        bg: 'linear-gradient(135deg, #FF3D00 0%, #D84315 100%)',
+        iconSvg: `<svg width="80" height="60" viewBox="0 0 28 20" fill="none"><rect width="28" height="20" rx="6" fill="#fff"/><circle cx="14" cy="10" r="6" fill="#FFD600"/><polygon points="12,7 18,10 12,13" fill="#D84315"/></svg>`,
+        isKidSafe: true
+      },
+      {
+        id: 'khan',
+        name: 'Khan Academy Kids',
+        bg: 'linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)',
+        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24" fill="#fff"><path d="M12 3L2 12h3v8h14v-8h3L12 3zm0 4.5l5 4.5H7l5-4.5z"/></svg>`,
+        isKidSafe: true
+      },
+      {
+        id: 'scratch',
+        name: 'Scratch Jr',
+        bg: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+        isKidSafe: true
       },
       {
         id: 'vlc',
         name: 'VLC Media Player',
         bg: 'linear-gradient(135deg, #FF8800 0%, #C45500 100%)',
-        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24" fill="none"><path d="M12 2L6 17h12L12 2z" fill="#fff"/><path d="M7.5 13.5h9M9 9.5h6" stroke="#FF7700" stroke-width="2"/><ellipse cx="12" cy="20" rx="9" ry="2.5" fill="#fff"/></svg>`
+        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24" fill="none"><path d="M12 2L6 17h12L12 2z" fill="#fff"/><path d="M7.5 13.5h9M9 9.5h6" stroke="#FF7700" stroke-width="2"/><ellipse cx="12" cy="20" rx="9" ry="2.5" fill="#fff"/></svg>`,
+        isKidSafe: true
+      },
+      {
+        id: 'spotify',
+        name: 'Spotify',
+        bg: 'linear-gradient(135deg, #1DB954 0%, #107834 100%)',
+        iconSvg: `<svg width="74" height="74" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10" fill="#000"/><path d="M17.5 15.2c-.2.3-.6.4-.9.2-2.5-1.5-5.6-1.9-9.3-1-.4.1-.7-.2-.8-.5-.1-.4.2-.7.5-.8 4.1-.9 7.6-.5 10.3 1.1.4.3.4.7.2 1zm1.2-2.7c-.2.4-.7.5-1.1.3-2.9-1.8-7.3-2.3-10.7-1.3-.4.1-.9-.1-1-.5-.1-.4.1-.9.5-1 3.9-1.2 8.8-.6 12 1.4.4.2.5.7.3 1.1zm.1-2.9c-3.4-2-9.1-2.2-12.4-1.2-.5.2-1.1-.1-1.2-.6-.2-.5.1-1.1.6-1.2 3.8-1.2 10.1-.9 14.1 1.4.5.3.6.9.3 1.4-.3.4-.9.5-1.4.2z" fill="#1DB954"/></svg>`,
+        isKidSafe: false
       },
       {
         id: 'netflix',
         name: 'Netflix',
         bg: 'linear-gradient(135deg, #141414 0%, #000000 100%)',
-        iconSvg: `<svg width="60" height="75" viewBox="0 0 24 30" fill="none"><path d="M4 0h5v30H4z" fill="#E50914"/><path d="M15 0h5v30h-5z" fill="#E50914"/><path d="M4 0l11 30h5L9 0H4z" fill="#B81D24"/></svg>`
+        iconSvg: `<svg width="60" height="75" viewBox="0 0 24 30" fill="none"><path d="M4 0h5v30H4z" fill="#E50914"/><path d="M15 0h5v30h-5z" fill="#E50914"/><path d="M4 0l11 30h5L9 0H4z" fill="#B81D24"/></svg>`,
+        isKidSafe: false
       },
       {
         id: 'appletv',
         name: 'Apple TV+',
         bg: 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%)',
-        iconSvg: `<svg width="80" height="50" viewBox="0 0 60 40" fill="#fff"><path d="M16 14.5c-.8.9-2 .8-2 .8s-.3-1 .6-2c.9-.9 1.9-.8 1.9-.8s.2 1.1-.5 2zm2 1.3c-.6 0-1.5-.4-2.3-.4-.9 0-1.7.4-2.2.4-1.5 0-2.8-1.3-2.8-3.6 0-2.4 1.5-3.6 3-3.6.8 0 1.5.4 2.1.4.6 0 1.5-.4 2.4-.4 1.2 0 2.2.6 2.7 1.4-1.8.8-1.7 3.3.3 4-.5 1-1.2 2-2.1 2z"/><text x="24" y="24" font-family="-apple-system, sans-serif" font-weight="bold" font-size="20" fill="#fff">tv+</text></svg>`
+        iconSvg: `<svg width="80" height="50" viewBox="0 0 60 40" fill="#fff"><path d="M16 14.5c-.8.9-2 .8-2 .8s-.3-1 .6-2c.9-.9 1.9-.8 1.9-.8s.2 1.1-.5 2zm2 1.3c-.6 0-1.5-.4-2.3-.4-.9 0-1.7.4-2.2.4-1.5 0-2.8-1.3-2.8-3.6 0-2.4 1.5-3.6 3-3.6.8 0 1.5.4 2.1.4.6 0 1.5-.4 2.4-.4 1.2 0 2.2.6 2.7 1.4-1.8.8-1.7 3.3.3 4-.5 1-1.2 2-2.1 2z"/><text x="24" y="24" font-family="-apple-system, sans-serif" font-weight="bold" font-size="20" fill="#fff">tv+</text></svg>`,
+        isKidSafe: false
       },
       {
         id: 'photos',
         name: 'Photos',
         bg: 'linear-gradient(135deg, #FFFFFF 0%, #E0E0E6 100%)',
-        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#FF2D55"/><circle cx="17" cy="12" r="4" fill="#FF9500"/><circle cx="12" cy="17" r="4" fill="#4CD964"/><circle cx="7" cy="12" r="4" fill="#5AC8FA"/></svg>`
+        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="#FF2D55"/><circle cx="17" cy="12" r="4" fill="#FF9500"/><circle cx="12" cy="17" r="4" fill="#4CD964"/><circle cx="7" cy="12" r="4" fill="#5AC8FA"/></svg>`,
+        isKidSafe: false
       },
       {
         id: 'youtube',
         name: 'YouTube',
         bg: 'linear-gradient(135deg, #FF0000 0%, #990000 100%)',
-        iconSvg: `<svg width="70" height="50" viewBox="0 0 24 18" fill="#fff"><polygon points="10,5 16,9 10,13" fill="#E60000"/></svg>`
+        iconSvg: `<svg width="70" height="50" viewBox="0 0 24 18" fill="#fff"><polygon points="10,5 16,9 10,13" fill="#E60000"/></svg>`,
+        isKidSafe: false
       }
     ];
+
+    let parentalControlInstalled = true;
+    let profileMode = 'KID'; // 'KID' or 'PARENT'
+    let otpDigits = ['', '', '', '', '', ''];
+    let otpCurrentIndex = 0;
+    let quizActive = false;
+    let quizRestTimer = null;
 
     const WALLPAPERS = [
       { id: 'dark-default', name: 'tvOS Midnight', url: 'radial-gradient(circle at 50% 25%, #182236 0%, #0d121c 45%, #05070a 100%)', isGradient: true, tag: 'Dark' },
@@ -1447,12 +1782,20 @@
     window.addEventListener('resize', resizeViewport);
     resizeViewport();
 
+    function getActiveApps() {
+      if (parentalControlInstalled && profileMode === 'KID') {
+        return ALL_APPS.filter(a => a.isKidSafe);
+      }
+      return ALL_APPS;
+    }
+
     function renderDock() {
       dockRow.innerHTML = '';
-      const count = currentMode;
-      const list = APPS.slice(0, count);
+      const activeList = getActiveApps();
+      const count = Math.min(currentMode, activeList.length);
+      const list = activeList.slice(0, count);
 
-      if (focusedIndex >= count) focusedIndex = count - 1;
+      if (focusedIndex >= count) focusedIndex = Math.max(0, count - 1);
 
       list.forEach((app, idx) => {
         const tile = document.createElement('div');
@@ -1473,10 +1816,42 @@
       });
 
       updateFocus();
+      updateTopBarProfile();
+    }
+
+    function updateTopBarProfile() {
+      const pillMode = document.getElementById('pillMode');
+      const pillSettings = document.getElementById('pillSettings');
+      const toolbarModeText = document.getElementById('toolbarModeText');
+
+      if (!parentalControlInstalled) {
+        if (pillMode) pillMode.style.display = 'none';
+        if (pillSettings) pillSettings.style.display = 'flex';
+        return;
+      }
+
+      if (pillMode) {
+        pillMode.style.display = 'flex';
+        if (profileMode === 'KID') {
+          pillMode.className = 'menu-pill';
+          document.getElementById('pillModeIcon').textContent = '🧒';
+          document.getElementById('pillModeText').textContent = 'Kid Mode';
+          if (toolbarModeText) toolbarModeText.textContent = '🧒 Kid';
+          if (pillSettings) pillSettings.style.display = 'none'; // Lock settings in Kid Mode
+        } else {
+          pillMode.className = 'menu-pill mode-parent';
+          document.getElementById('pillModeIcon').textContent = '👨‍👩‍👧';
+          document.getElementById('pillModeText').textContent = 'Phụ huynh';
+          if (toolbarModeText) toolbarModeText.textContent = '👨‍👩‍👧 Phụ huynh';
+          if (pillSettings) pillSettings.style.display = 'flex'; // Unlock settings
+        }
+      }
     }
 
     function updateFocus() {
-      const list = APPS.slice(0, currentMode);
+      const activeList = getActiveApps();
+      const count = Math.min(currentMode, activeList.length);
+      const list = activeList.slice(0, count);
       const app = list[focusedIndex];
       if (!app) return;
 
@@ -1773,9 +2148,194 @@
       }
     });
 
+    /* ---- FamilyTime Parental Control & Kid Mode Handlers ---- */
+    function handleModePillClick() {
+      closeAllDropdowns();
+      if (!parentalControlInstalled) return;
+      if (profileMode === 'KID') {
+        openAuthModal();
+      } else {
+        openParentOptionsModal();
+      }
+    }
+
+    function openAuthModal() {
+      otpDigits = ['', '', '', '', '', ''];
+      otpCurrentIndex = 0;
+      updateOtpDisplay();
+      document.getElementById('authModal').classList.add('active');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('active');
+    }
+
+    function handleAuthModalBackdrop(e) {
+      if (e.target.id === 'authModal') closeAuthModal();
+    }
+
+    function updateOtpDisplay() {
+      for (let i = 0; i < 6; i++) {
+        const box = document.getElementById(`otp-${i}`);
+        if (!box) continue;
+        box.textContent = otpDigits[i] ? otpDigits[i] : (i === otpCurrentIndex ? '|' : '_');
+        box.className = `otp-box ${i === otpCurrentIndex ? 'active' : ''} ${otpDigits[i] ? 'filled' : ''}`;
+      }
+    }
+
+    function pressOtpKey(digit) {
+      if (otpCurrentIndex < 6) {
+        otpDigits[otpCurrentIndex] = digit;
+        otpCurrentIndex++;
+        updateOtpDisplay();
+        if (otpCurrentIndex === 6) {
+          setTimeout(submitOtp, 160);
+        }
+      }
+    }
+
+    function pressOtpClear() {
+      if (otpCurrentIndex > 0) {
+        otpCurrentIndex--;
+        otpDigits[otpCurrentIndex] = '';
+      } else {
+        otpDigits = ['', '', '', '', '', ''];
+        otpCurrentIndex = 0;
+      }
+      updateOtpDisplay();
+    }
+
+    function submitOtp() {
+      const code = otpDigits.join('');
+      if (code.length === 6) {
+        // Valid TOTP
+        closeAuthModal();
+        profileMode = 'PARENT';
+        showToast('🔓 Google Authenticator hợp lệ! Đã mở khóa Chế độ Phụ huynh.');
+        renderDock();
+      } else {
+        showToast('⚠️ Vui lòng nhập đủ 6 chữ số OTP');
+      }
+    }
+
+    function autoFillValidOtp() {
+      otpDigits = ['5', '8', '2', '1', '0', '9'];
+      otpCurrentIndex = 6;
+      updateOtpDisplay();
+      setTimeout(submitOtp, 220);
+    }
+
+    function openParentOptionsModal() {
+      document.getElementById('parentOptionsModal').classList.add('active');
+    }
+
+    function closeParentOptionsModal() {
+      document.getElementById('parentOptionsModal').classList.remove('active');
+    }
+
+    function handleParentOptionsBackdrop(e) {
+      if (e.target.id === 'parentOptionsModal') closeParentOptionsModal();
+    }
+
+    function lockToKidMode() {
+      closeParentOptionsModal();
+      profileMode = 'KID';
+      showToast('🔒 Đã khóa lại về Chế độ Trẻ em (Kid Mode)');
+      renderDock();
+    }
+
+    // Toggle Parental Control presence in web simulator
+    function toggleParentalService() {
+      parentalControlInstalled = !parentalControlInstalled;
+      const btn = document.getElementById('btnParentalToggle');
+      if (parentalControlInstalled) {
+        btn.classList.add('active');
+        btn.style.background = 'rgba(20, 184, 166, 0.25)';
+        btn.style.borderColor = 'rgba(20, 184, 166, 0.6)';
+        btn.style.color = '#2dd4bf';
+        btn.textContent = '🛡️ Parental Control: CÓ';
+        profileMode = 'KID';
+        showToast('🛡️ Đã phát hiện FamilyTime Parental Control!');
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = 'rgba(255, 255, 255, 0.08)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        btn.style.color = 'rgba(255, 255, 255, 0.7)';
+        btn.textContent = '🛡️ Parental Control: KHÔNG CÓ';
+        showToast('Độc lập: Không có Parental Control -> Hiện đủ 100% ứng dụng');
+      }
+      renderDock();
+    }
+
+    function quickToggleProfileMode() {
+      if (!parentalControlInstalled) {
+        showToast('Cần có Parental Control để dùng tính năng này!');
+        return;
+      }
+      if (profileMode === 'KID') {
+        openAuthModal();
+      } else {
+        lockToKidMode();
+      }
+    }
+
+    // 15-Minute Quiz Break Overlay Simulation
+    function triggerQuizBreak() {
+      closeAllDropdowns();
+      const quizModal = document.getElementById('quizModal');
+      const alertEl = document.getElementById('quizAlert');
+      if (alertEl) alertEl.innerHTML = '';
+      document.querySelectorAll('.quiz-opt-btn').forEach(b => {
+        b.className = 'quiz-opt-btn';
+        b.disabled = false;
+      });
+      quizModal.classList.add('active');
+      showToast('⏸️ Hết 15 phút xem TV! AudioFocus PAUSED.');
+    }
+
+    function handleQuizAnswer(index) {
+      const alertEl = document.getElementById('quizAlert');
+      const optBtn = document.getElementById(`quiz-opt-${index}`);
+
+      if (index === 2) { // Option C is correct
+        optBtn.classList.add('correct');
+        alertEl.innerHTML = '<span style="color: #4ade80;">🎉 Chính xác! Bé rất thông minh! Video sẽ tiếp tục phát sau 1.5s.</span>';
+        document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
+        setTimeout(() => {
+          document.getElementById('quizModal').classList.remove('active');
+          showToast('▶️ AudioFocus Resumed · Video tiếp tục phát.');
+        }, 1500);
+      } else {
+        optBtn.classList.add('wrong');
+        let sec = 15;
+        alertEl.innerHTML = `<span style="color: #f87171;">⚠️ Chưa đúng rồi! Bé hãy nhắm mắt nghỉ ngơi <b id="restCountdown">${sec}</b>s nhé!</span>`;
+        document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
+        if (quizRestTimer) clearInterval(quizRestTimer);
+        quizRestTimer = setInterval(() => {
+          sec--;
+          const cnt = document.getElementById('restCountdown');
+          if (cnt) cnt.textContent = sec;
+          if (sec <= 0) {
+            clearInterval(quizRestTimer);
+            alertEl.innerHTML = '<span style="color: #38bdf8;">Đã hết giờ nghỉ! Bé hãy chọn lại đáp án nhé.</span>';
+            document.querySelectorAll('.quiz-opt-btn').forEach(b => {
+              b.classList.remove('wrong');
+              b.disabled = false;
+            });
+          }
+        }, 1000);
+      }
+    }
+
+    function bypassQuizWithParentAuth() {
+      if (quizRestTimer) clearInterval(quizRestTimer);
+      document.getElementById('quizModal').classList.remove('active');
+      openAuthModal();
+    }
+
     // Close popups when clicking anywhere outside
     viewportFrame.addEventListener('click', (e) => {
-      if (e.target.closest('.control-panel-popup') || e.target.closest('.menu-pill') || e.target.closest('.wallpaper-modal') || e.target.closest('.top-left-badge') || e.target.closest('#restartConfirmModal')) {
+      if (e.target.closest('.control-panel-popup') || e.target.closest('.menu-pill') || e.target.closest('.wallpaper-modal') || e.target.closest('.top-left-badge') || e.target.closest('#restartConfirmModal') || e.target.closest('#authModal') || e.target.closest('#parentOptionsModal') || e.target.closest('#quizModal')) {
         return;
       }
       closeAllDropdowns();
@@ -1783,6 +2343,26 @@
 
     // Keyboard navigation (remote arrow keys)
     window.addEventListener('keydown', (e) => {
+      const authModal = document.getElementById('authModal');
+      if (authModal && authModal.classList.contains('active')) {
+        if (e.key >= '0' && e.key <= '9') {
+          pressOtpKey(e.key);
+          e.preventDefault();
+          return;
+        } else if (e.key === 'Backspace') {
+          pressOtpClear();
+          e.preventDefault();
+          return;
+        } else if (e.key === 'Enter') {
+          submitOtp();
+          e.preventDefault();
+          return;
+        } else if (e.key === 'Escape') {
+          closeAuthModal();
+          e.preventDefault();
+          return;
+        }
+      }
       if (sleepOverlay.classList.contains('active')) {
         wakeFromSleep();
         return;
