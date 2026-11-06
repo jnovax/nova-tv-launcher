@@ -18,6 +18,7 @@ public final class ModeManager {
     public static final String MODE_KID = "KID";
     public static final String MODE_PARENT = "PARENT";
 
+    public static final String TARGET_PACKAGE = "vn.familytv.parentalcontrol";
     public static final String ACTION_MODE_CHANGED = "vn.familytv.parentalcontrol.ACTION_MODE_CHANGED";
     public static final String ACTION_AUTHENTICATE = "vn.familytv.parentalcontrol.ACTION_AUTHENTICATE";
     public static final String EXTRA_MODE = "extra_mode";
@@ -65,8 +66,47 @@ public final class ModeManager {
         prefs.edit().putString(KEY_CURRENT_MODE, normalizeMode(mode)).apply();
     }
 
-    /** Returns true if current mode is KID. */
+    /** Pure helper to test parental control detection logic. */
+    public static boolean isParentalControlInstalled(Set<String> installedPackages, boolean hasAuthHandler) {
+        if (installedPackages != null && installedPackages.contains(TARGET_PACKAGE)) {
+            return true;
+        }
+        return hasAuthHandler;
+    }
+
+    /**
+     * Checks if a compatible parental control service is installed on the TV.
+     * Looks for vn.familytv.parentalcontrol or any activity responding to ACTION_AUTHENTICATE.
+     */
+    public static boolean isParentalControlAvailable(Context context) {
+        if (context == null) return false;
+        android.content.pm.PackageManager pm = context.getPackageManager();
+        if (pm == null) return false;
+
+        try {
+            pm.getPackageInfo(TARGET_PACKAGE, 0);
+            return true;
+        } catch (Exception ignored) {}
+
+        try {
+            android.content.Intent intent = new android.content.Intent(ACTION_AUTHENTICATE);
+            java.util.List<android.content.pm.ResolveInfo> list = pm.queryIntentActivities(intent, 0);
+            return list != null && !list.isEmpty();
+        } catch (Exception ignored) {}
+
+        return false;
+    }
+
+    /**
+     * Returns true if current mode is KID.
+     * If no compatible parental control service is installed on the TV, Kid Mode is NOT engaged,
+     * so the launcher behaves normally and shows all apps without restriction.
+     */
     public static boolean isKidMode(Context context) {
+        if (context == null) return false;
+        if (!isParentalControlAvailable(context)) {
+            return false;
+        }
         return MODE_KID.equals(getMode(context));
     }
 

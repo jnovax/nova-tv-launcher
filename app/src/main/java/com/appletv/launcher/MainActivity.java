@@ -195,6 +195,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             // Updates send REMOVED followed by ADDED; keep the tile until the new APK is ready.
             if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())
                     && intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) return;
+            updateModeUI();
             reloadApps(false);
         }
     };
@@ -447,6 +448,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void updateModeUI() {
         if (btnMode == null) return;
+        boolean available = ModeManager.isParentalControlAvailable(this);
+        if (!available) {
+            btnMode.setVisibility(View.GONE);
+            if (btnSettings != null) btnSettings.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        btnMode.setVisibility(View.VISIBLE);
         boolean kidMode = ModeManager.isKidMode(this);
         if (kidMode) {
             btnMode.setText(R.string.mode_kid);

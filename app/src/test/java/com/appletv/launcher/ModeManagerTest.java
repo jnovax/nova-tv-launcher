@@ -47,4 +47,17 @@ public class ModeManagerTest {
         assertTrue(ModeManager.isAppAllowedInKidMode("com.custom.learning.game", custom));
         assertFalse(ModeManager.isAppAllowedInKidMode("org.smarttube.stable", custom));
     }
+
+    @Test
+    public void parentalControlDetectionIdentifiesTargetOrHandler() {
+        assertFalse(ModeManager.isParentalControlInstalled(null, false));
+        assertFalse(ModeManager.isParentalControlInstalled(Collections.emptySet(), false));
+        assertFalse(ModeManager.isParentalControlInstalled(Collections.singleton("com.other.app"), false));
+
+        // Detected by package name
+        assertTrue(ModeManager.isParentalControlInstalled(Collections.singleton(ModeManager.TARGET_PACKAGE), false));
+
+        // Detected by intent handler
+        assertTrue(ModeManager.isParentalControlInstalled(Collections.emptySet(), true));
+    }
 }
