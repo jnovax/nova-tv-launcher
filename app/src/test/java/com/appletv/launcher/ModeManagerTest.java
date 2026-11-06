@@ -21,31 +21,32 @@ public class ModeManagerTest {
     }
 
     @Test
-    public void defaultWhitelistAllowsKidApps() {
+    public void kidModeHidesFamilyTimeByDefault() {
+        assertFalse(ModeManager.isAppAllowedInKidMode("vn.familytv.parentalcontrol", null));
+        assertFalse(ModeManager.isAppAllowedInKidMode("com.familytv.another", null));
+    }
+
+    @Test
+    public void kidModeAllowsOtherAppsByDefault() {
         assertTrue(ModeManager.isAppAllowedInKidMode("com.google.android.youtube.tvkids", null));
         assertTrue(ModeManager.isAppAllowedInKidMode("org.smarttube.stable", null));
-        assertTrue(ModeManager.isAppAllowedInKidMode("org.schabi.newpipe", null));
-        assertTrue(ModeManager.isAppAllowedInKidMode("org.videolan.vlc", null));
-        assertTrue(ModeManager.isAppAllowedInKidMode("org.khanacademy.android", null));
+        assertTrue(ModeManager.isAppAllowedInKidMode("com.spotify.tv.android", null));
+        assertTrue(ModeManager.isAppAllowedInKidMode("vn.mytvnet.b2cott", null));
+        assertTrue(ModeManager.isAppAllowedInKidMode("org.courville.nova", null));
+        assertTrue(ModeManager.isAppAllowedInKidMode("com.vocatv.app", null));
+        assertTrue(ModeManager.isAppAllowedInKidMode("com.netflix.ninja", null));
     }
 
     @Test
-    public void defaultWhitelistBlocksAdultAndSystemApps() {
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.android.settings", null));
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.google.android.tv.settings", null));
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.android.chrome", null));
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.google.android.youtube.tv", null)); // stock uncurated youtube
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.netflix.ninja", null));
-        assertFalse(ModeManager.isAppAllowedInKidMode("com.android.vending", null)); // Play Store
-    }
-
-    @Test
-    public void customWhitelistOverridesDefaults() {
+    public void customWhitelistOverridesDefaultsButStillHidesFamilyTime() {
         Set<String> custom = new HashSet<>();
         custom.add("com.custom.learning.game");
+        custom.add("vn.familytv.parentalcontrol"); // even if mistakenly added
 
         assertTrue(ModeManager.isAppAllowedInKidMode("com.custom.learning.game", custom));
         assertFalse(ModeManager.isAppAllowedInKidMode("org.smarttube.stable", custom));
+        // Family Time must remain hidden in Kid Mode even if in custom list
+        assertFalse(ModeManager.isAppAllowedInKidMode("vn.familytv.parentalcontrol", custom));
     }
 
     @Test

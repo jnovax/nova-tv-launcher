@@ -110,6 +110,16 @@ public final class ModeManager {
         return MODE_KID.equals(getMode(context));
     }
 
+    /**
+     * Checks if a package belongs to Family Time / Parental Control which must remain hidden from kids.
+     */
+    public static boolean isFamilyTimePackage(String packageName) {
+        if (packageName == null) return false;
+        return TARGET_PACKAGE.equalsIgnoreCase(packageName)
+                || packageName.toLowerCase().contains("familytv")
+                || packageName.toLowerCase().contains("parentalcontrol");
+    }
+
     /** Returns the unmodifiable default whitelist of kid-safe apps. */
     public static Set<String> getDefaultKidWhitelist() {
         return DEFAULT_KID_WHITELIST;
@@ -119,22 +129,18 @@ public final class ModeManager {
     public static boolean isAppAllowedInKidMode(String packageName, Set<String> customWhitelist) {
         if (packageName == null || packageName.isEmpty()) return false;
 
-        // Custom whitelist provided by tv-parental-control or user preferences
+        // Family Time is strictly hidden in Kid Mode
+        if (isFamilyTimePackage(packageName)) {
+            return false;
+        }
+
+        // Custom whitelist provided by tv-parental-control or user preferences if explicitly specified
         if (customWhitelist != null && !customWhitelist.isEmpty()) {
             return customWhitelist.contains(packageName);
         }
 
-        // Built-in fail-safe whitelist
-        if (DEFAULT_KID_WHITELIST.contains(packageName)) {
-            return true;
-        }
-
-        // Auto-allow explicit kids packages unless blacklisted
-        if (packageName.toLowerCase().contains(".kids") || packageName.toLowerCase().endsWith("tvkids")) {
-            return true;
-        }
-
-        return false;
+        // All other apps are allowed in Kid Mode by default
+        return true;
     }
 
     /** Updates the custom whitelist in SharedPreferences. */

@@ -1727,7 +1727,14 @@
         name: 'YouTube',
         bg: 'linear-gradient(135deg, #FF0000 0%, #990000 100%)',
         iconSvg: `<svg width="70" height="50" viewBox="0 0 24 18" fill="#fff"><polygon points="10,5 16,9 10,13" fill="#E60000"/></svg>`,
-        isKidSafe: false
+        isKidSafe: true
+      },
+      {
+        id: 'familytime',
+        name: 'FamilyTime',
+        bg: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+        iconSvg: `<svg width="70" height="70" viewBox="0 0 24 24" fill="#fff"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>`,
+        isFamilyTime: true
       }
     ];
 
@@ -1784,7 +1791,7 @@
 
     function getActiveApps() {
       if (parentalControlInstalled && profileMode === 'KID') {
-        return ALL_APPS.filter(a => a.isKidSafe);
+        return ALL_APPS.filter(a => !a.isFamilyTime);
       }
       return ALL_APPS;
     }

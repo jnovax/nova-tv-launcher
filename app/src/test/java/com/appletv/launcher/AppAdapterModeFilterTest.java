@@ -15,27 +15,32 @@ public class AppAdapterModeFilterTest {
     private final Set<String> hidden = Collections.singleton("com.hidden.app");
 
     @Test
-    public void parentModeAllowsAllNonHiddenApps() {
+    public void parentModeAllowsAllNonHiddenAppsIncludingFamilyTime() {
         boolean kidMode = false;
+        assertTrue(AppAdapter.shouldIncludePackage("vn.familytv.parentalcontrol", ownPkg, hidden, kidMode, null));
         assertTrue(AppAdapter.shouldIncludePackage("org.smarttube.stable", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("com.spotify.tv.android", ownPkg, hidden, kidMode, null));
         assertTrue(AppAdapter.shouldIncludePackage("com.netflix.ninja", ownPkg, hidden, kidMode, null));
-        assertTrue(AppAdapter.shouldIncludePackage("com.android.settings", ownPkg, hidden, kidMode, null));
         assertFalse(AppAdapter.shouldIncludePackage("com.hidden.app", ownPkg, hidden, kidMode, null));
         assertFalse(AppAdapter.shouldIncludePackage(ownPkg, ownPkg, hidden, kidMode, null));
     }
 
     @Test
-    public void kidModeOnlyAllowsWhitelistedApps() {
+    public void kidModeHidesFamilyTimeAndShowsOtherApps() {
         boolean kidMode = true;
-        // Allowed
-        assertTrue(AppAdapter.shouldIncludePackage("org.smarttube.stable", ownPkg, hidden, kidMode, null));
-        assertTrue(AppAdapter.shouldIncludePackage("com.google.android.youtube.tvkids", ownPkg, hidden, kidMode, null));
-        assertTrue(AppAdapter.shouldIncludePackage("org.khanacademy.android", ownPkg, hidden, kidMode, null));
+        // Family Time must be hidden in Kid Mode
+        assertFalse(AppAdapter.shouldIncludePackage("vn.familytv.parentalcontrol", ownPkg, hidden, kidMode, null));
 
-        // Blocked
-        assertFalse(AppAdapter.shouldIncludePackage("com.netflix.ninja", ownPkg, hidden, kidMode, null));
-        assertFalse(AppAdapter.shouldIncludePackage("com.android.settings", ownPkg, hidden, kidMode, null));
-        assertFalse(AppAdapter.shouldIncludePackage("com.android.chrome", ownPkg, hidden, kidMode, null));
+        // Other apps show up
+        assertTrue(AppAdapter.shouldIncludePackage("org.smarttube.stable", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("com.spotify.tv.android", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("vn.mytvnet.b2cott", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("org.courville.nova", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("com.vocatv.app", ownPkg, hidden, kidMode, null));
+        assertTrue(AppAdapter.shouldIncludePackage("com.netflix.ninja", ownPkg, hidden, kidMode, null));
+
+        // Hidden apps & own package still hidden
+        assertFalse(AppAdapter.shouldIncludePackage("com.hidden.app", ownPkg, hidden, kidMode, null));
         assertFalse(AppAdapter.shouldIncludePackage(ownPkg, ownPkg, hidden, kidMode, null));
     }
 
