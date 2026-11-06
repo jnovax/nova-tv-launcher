@@ -333,16 +333,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         });
 
-        View btnWallpaper = findViewById(R.id.btnWallpaper);
         btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
-        if (btnWallpaper != null) {
-            btnWallpaper.setOnClickListener(v -> showWallpaperPickerGrid());
-            btnWallpaper.setOnLongClickListener(v -> {
-                cycleWallpaper();
-                return true;
-            });
-        }
         btnInputs.setOnClickListener(v -> toggleInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
         btnWifi.setOnLongClickListener(v -> {
@@ -366,14 +358,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 focusTile(lastFocused % COLUMNS);
                 return true;
             }
-            int firstButton = (btnWallpaper != null && btnWallpaper.getVisibility() == View.VISIBLE)
-                    ? R.id.btnWallpaper : (btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi);
+            int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : R.id.btnWifi;
             int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
             int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
-        if (btnWallpaper != null) btnWallpaper.setOnKeyListener(pillKeys);
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
