@@ -145,6 +145,18 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     /**
+     * Determines whether a package should be shown in the launcher grid based on hidden settings
+     * and current profile mode (Kid vs Parent).
+     */
+    static boolean shouldIncludePackage(String pkg, String ownPkg, Set<String> hidden, boolean kidMode, Set<String> whitelist) {
+        if (pkg == null) return false;
+        if (pkg.equals(ownPkg)) return false;
+        if (hidden != null && hidden.contains(pkg)) return false;
+        if (kidMode && !ModeManager.isAppAllowedInKidMode(pkg, whitelist)) return false;
+        return true;
+    }
+
+    /**
      * Rebuilds the tiles. A shown module card stands in for every tile of its package (same component,
      * so focus follows it); hidden_apps wins over a card, and a card's package in dock_apps takes that slot.
      */
@@ -155,10 +167,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         Map<String, Cards.Card> cardByPkg = new HashMap<>();
         for (Cards.Card c : cards) cardByPkg.put(c.pkg, c);
         List<Entry> fresh = new ArrayList<>();
+        boolean kidMode = ModeManager.isKidMode(ctx);
+        Set<String> customWhitelist = kidMode ? ModeManager.getCustomWhitelist(ctx) : null;
         for (ResolveInfo ri : found) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
-            if (pkg.equals(ctx.getPackageName()) || hidden.contains(pkg)) continue;
+            if (!shouldIncludePackage(pkg, ctx.getPackageName(), hidden, kidMode, customWhitelist)) continue;
             ComponentName component = new ComponentName(pkg, ri.activityInfo.name);
             Cards.Card card = cardByPkg.get(pkg);
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
