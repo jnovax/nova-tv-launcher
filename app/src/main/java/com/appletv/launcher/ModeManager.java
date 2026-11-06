@@ -1,0 +1,117 @@
+package com.appletv.launcher;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Manages Kid Mode vs Parent Mode state, whitelisted apps, and IPC integration
+ * with tv-parental-control (vn.familytv.parentalcontrol).
+ *
+ * Fail-safe principle: Default mode is always KID unless explicitly validated as PARENT.
+ */
+public final class ModeManager {
+
+    public static final String MODE_KID = "KID";
+    public static final String MODE_PARENT = "PARENT";
+
+    public static final String ACTION_MODE_CHANGED = "vn.familytv.parentalcontrol.ACTION_MODE_CHANGED";
+    public static final String ACTION_AUTHENTICATE = "vn.familytv.parentalcontrol.ACTION_AUTHENTICATE";
+    public static final String EXTRA_MODE = "extra_mode";
+    public static final String EXTRA_ALLOWED_PACKAGES = "extra_allowed_packages";
+
+    private static final String PREFS_NAME = "mode_preferences";
+    private static final String KEY_CURRENT_MODE = "current_mode";
+    private static final String KEY_WHITELIST = "whitelist_packages";
+
+    private static final Set<String> DEFAULT_KID_WHITELIST;
+
+    static {
+        Set<String> set = new HashSet<>();
+        set.add("com.google.android.youtube.tvkids");
+        set.add("org.smarttube.stable");
+        set.add("org.schabi.newpipe");
+        set.add("org.videolan.vlc");
+        set.add("org.khanacademy.android");
+        set.add("com.duolingo");
+        set.add("vn.familytv.parentalcontrol");
+        DEFAULT_KID_WHITELIST = Collections.unmodifiableSet(set);
+    }
+
+    private ModeManager() {}
+
+    /** Normalizes raw mode string with fail-safe default to KID mode. */
+    public static String normalizeMode(String raw) {
+        if (MODE_PARENT.equalsIgnoreCase(raw)) {
+            return MODE_PARENT;
+        }
+        return MODE_KID;
+    }
+
+    /** Gets the current mode for the app. Defaults to MODE_KID. */
+    public static String getMode(Context context) {
+        if (context == null) return MODE_KID;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return normalizeMode(prefs.getString(KEY_CURRENT_MODE, MODE_KID));
+    }
+
+    /** Sets the current mode. Normalizes input so invalid modes always become KID. */
+    public static void setMode(Context context, String mode) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_CURRENT_MODE, normalizeMode(mode)).apply();
+    }
+
+    /** Returns true if current mode is KID. */
+    public static boolean isKidMode(Context context) {
+        return MODE_KID.equals(getMode(context));
+    }
+
+    /** Returns the unmodifiable default whitelist of kid-safe apps. */
+    public static Set<String> getDefaultKidWhitelist() {
+        return DEFAULT_KID_WHITELIST;
+    }
+
+    /** Returns true if the package is permitted to run under Kid Mode. */
+    public static boolean isAppAllowedInKidMode(String packageName, Set<String> customWhitelist) {
+        if (packageName == null || packageName.isEmpty()) return false;
+
+        // Custom whitelist provided by tv-parental-control or user preferences
+        if (customWhitelist != null && !customWhitelist.isEmpty()) {
+            return customWhitelist.contains(packageName);
+        }
+
+        // Built-in fail-safe whitelist
+        if (DEFAULT_KID_WHITELIST.contains(packageName)) {
+            return true;
+        }
+
+        // Auto-allow explicit kids packages unless blacklisted
+        if (packageName.toLowerCase().contains(".kids") || packageName.toLowerCase().endsWith("tvkids")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /** Updates the custom whitelist in SharedPreferences. */
+    public static void setCustomWhitelist(Context context, Set<String> packages) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (packages == null || packages.isEmpty()) {
+            prefs.edit().remove(KEY_WHITELIST).apply();
+        } else {
+            prefs.edit().putStringSet(KEY_WHITELIST, new HashSet<>(packages)).apply();
+        }
+    }
+
+    /** Gets active custom whitelist if stored, or null if using defaults. */
+    public static Set<String> getCustomWhitelist(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getStringSet(KEY_WHITELIST, null);
+    }
+}
