@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#0B1420</color>
+    <color name="surface">#152334</color>
+    <color name="border">#344B62</color>
+    <color name="text_primary">#F4F8FC</color>
+    <color name="text_secondary">#B7C7D8</color>
+    <color name="text_disabled">#718399</color>
+    <color name="success">#80E8C1</color>
+    <color name="warning">#FFD18B</color>
+    <color name="focus_fill">#B4F6DE</color>
+    <color name="focus_text">#0D3028</color>
+    <color name="accent_cyan">#38BDF8</color>
+    <color name="accent_amber">#FBBF24</color>
+    <color name="accent_emerald">#34D399</color>
+</resources>

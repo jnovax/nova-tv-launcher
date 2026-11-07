@@ -1,12 +1,15 @@
 .gradle/
 build/
 app/build/
+apps/**/build/
 *.iml
 .idea/
 local.properties
 .DS_Store
 *.apk
+*.keystore
 app/debug.keystore
+apps/launcher/debug.keystore
 CONTEXT.md
 backups/
 build/downloads/

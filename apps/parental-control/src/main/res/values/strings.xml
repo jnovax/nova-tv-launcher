@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FamilyTime</string>
+    <string name="setup_label">Thiết lập trên TV</string>
+
+    <!-- Kid Mode Gate -->
+    <string name="kid_gate_title">Xác thực Phụ huynh</string>
+    <string name="kid_gate_body">FamilyTime được bảo vệ bằng mã OTP. Bấm phím Back trên remote để quay lại màn hình chính TV.</string>
+    <string name="kid_gate_exit">Thoát về màn hình TV</string>
+
+    <!-- Streamlined Onboarding -->
+    <string name="onboarding_title">Thiết lập FamilyTime trên TV</string>
+    <string name="permissions_step_title">1. Cấp quyền hệ thống</string>
+    <string name="permissions_step_body">FamilyTime cần 2 quyền bên dưới để bảo vệ thời gian xem TV của các con. Bấm từng nút để mở Cài đặt TV, bật quyền cho FamilyTime, rồi bấm Back trên remote để quay lại đây.</string>
+    <string name="perm_accessibility_granted">Hỗ trợ tiếp cận: Đã kết nối ✓</string>
+    <string name="perm_accessibility_needed">Hỗ trợ tiếp cận: Chưa bật</string>
+    <string name="perm_usage_granted">Truy cập dữ liệu sử dụng: Đã cấp ✓</string>
+    <string name="perm_usage_needed">Truy cập dữ liệu sử dụng: Chưa cấp</string>
+    <string name="parent_otp_step_title">2. Thiết lập mã OTP Phụ huynh</string>
+    <string name="parent_qr_body">Mở Google Authenticator trên điện thoại, quét mã QR này và nhập ngay 6 số OTP đang hiển thị để kích hoạt.</string>
+    <string name="recovery_codes_step_title">3. Lưu mã phục hồi khẩn cấp</string>
+    <string name="recovery_codes_body">Dùng điện thoại chụp lại màn hình này để lưu 6 mã dự phòng. Mỗi mã dùng được 1 lần khi bạn đổi hoặc mất điện thoại.</string>
+    <string name="complete_and_protect">Kích hoạt Bảo vệ &amp; Bắt đầu</string>
+
+    <!-- Permissions and Buttons -->
+    <string name="accessibility_title">Kết nối Accessibility</string>
+    <string name="connection_label">Kết nối dịch vụ</string>
+    <string name="permission_disabled">Chưa bật</string>
+    <string name="permission_disconnected">Đã bật · chưa kết nối</string>
+    <string name="permission_connected">Đã kết nối</string>
+    <string name="permission_allowed">Đã cấp quyền</string>
+    <string name="open_accessibility">Mở cài đặt Accessibility</string>
+    <string name="continue_action">Tiếp tục</string>
+    <string name="usage_title">Quyền truy cập sử dụng</string>
+    <string name="open_usage">Mở quyền truy cập sử dụng</string>
+    <string name="parent_qr_secret_label">Khóa thiết lập:</string>
+    <string name="parent_verify_title">Nhập mã xác thực OTP</string>
+    <string name="parent_verify_body">Nhập mã 6 chữ số đang hiển thị trên ứng dụng Google Authenticator để kích hoạt bảo vệ.</string>
+    <string name="parent_verify_error">Mã không chính xác. %1$s</string>
+    <string name="parent_verify_attempts_left">Còn lại %1$d lần thử.</string>
+    <string name="parent_verify_locked">Đã nhập sai 5 lần. Tạm khóa trong %1$d giây.</string>
+    <string name="use_recovery_code">Sử dụng mã phục hồi</string>
+    <string name="enter_recovery_title">Nhập mã phục hồi khẩn cấp</string>
+    <string name="enter_recovery_body">Nhập 1 trong 6 mã phục hồi 6 chữ số đã lưu. Mỗi mã chỉ dùng được một lần.</string>
+    <string name="recovery_codes_title">Lưu 6 mã phục hồi</string>
+    <string name="recovery_saved_action">Tôi đã lưu mã · Hoàn tất</string>
+
+    <!-- Parent Activity Configuration -->
+    <string name="parent_config_title">FamilyTime — Cấu hình Hoạt động</string>
+    <string name="parent_mode_title">Chế độ Phụ huynh (Đang mở khóa)</string>
+    <string name="parent_session_remaining">Phiên phụ huynh: còn %1$02d:%2$02d</string>
+    <string name="lock_and_exit">Khóa ngay &amp; Thoát về TV</string>
+    <string name="screentime_card_title">Giới hạn thời gian xem TV trong ngày</string>
+    <string name="screentime_card_status">Tự động khóa TV và ngắt âm thanh khi hết thời lượng</string>
+    <string name="weekday_limit_title">Ngày trong tuần (Thứ 2 – Thứ 6)</string>
+    <string name="weekend_limit_title">Cuối tuần (Thứ 7 &amp; Chủ Nhật)</string>
+    <string name="default_pin_hint">💡 Mã PIN mặc định: 000000</string>
+    <string name="security_card_title">Bảo mật &amp; Mật khẩu</string>
+    <string name="security_pin_mode">Mã PIN (6 số)</string>
+    <string name="security_totp_mode">Google Authenticator (TOTP)</string>
+    <string name="change_pin_action">Đổi mã PIN</string>
+    <string name="enable_google_auth_action">Bật Google Auth</string>
+    <string name="disable_google_auth_action">Đổi về mã PIN</string>
+    <string name="permissions_required_for_screentime">Vui lòng cấp quyền bảo vệ nền để thiết lập giới hạn thời gian</string>
+    <string name="enter_new_pin_title">Đổi mã PIN Phụ huynh mới</string>
+    <string name="enter_new_pin_body">Nhập 6 chữ số mã PIN mới bằng remote:</string>
+    <string name="pin_changed_success">Đã cập nhật mã PIN mới thành công!</string>
+    <string name="recovery_card_title">Mã phục hồi khẩn cấp</string>
+    <string name="view_recovery_codes">Xem 6 mã phục hồi</string>
+    <string name="system_status_title">Trạng thái bảo vệ nền</string>
+    <string name="system_status_ready">Dịch vụ bảo vệ nền: Đang hoạt động</string>
+    <string name="system_status_unready">Cần cấp quyền bảo vệ nền</string>
+    <string name="fix_permission_action">Thiết lập quyền</string>
+    <string name="system_status_body">Dịch vụ giám sát Accessibility &amp; Usage Access đang chạy nền offline.</string>
+    <string name="back_action">Quay lại</string>
+    <string name="settings_unavailable">Không mở được màn cài đặt này. Bạn có thể quay lại và thử trong cài đặt hệ thống TV.</string>
+    <string name="monitor_description">Theo dõi ứng dụng đang hiển thị để bảo vệ thời gian xem TV.</string>
+
+    <!-- TimeLock Overlay Strings (Respectful for Grade 4 & 9) -->
+    <string name="timelock_title">THỜI LƯỢNG SỬ DỤNG TV ĐÃ HẾT</string>
+    <string name="timelock_body">Thời gian xem TV hôm nay đã đạt giới hạn cho phép (%1$d giờ).\nCác con hãy nghỉ ngơi, học bài hoặc nhờ bố mẹ mở khóa nếu cần thêm thời gian.</string>
+    <string name="timelock_parent_unlock">Mở khóa Phụ huynh</string>
+    <string name="timelock_go_home">Về màn hình TV</string>
+    <string name="extension_title">Gia hạn Thời gian Xem TV</string>
+    <string name="extension_body">Lựa chọn thời gian cộng thêm cho ngày hôm nay (cài đặt gốc không đổi):</string>
+</resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="primary_action" type="id" />
+    <item name="continue_action" type="id" />
+    <item name="back_action" type="id" />
+    <item name="unlock_action" type="id" />
+    <item name="lock_action" type="id" />
+    <item name="recovery_action" type="id" />
+    <item name="permission_fix_action" type="id" />
+    <item name="change_pin_action" type="id" />
+    <item name="enable_google_auth_action" type="id" />
+    <item name="disable_google_auth_action" type="id" />
+    <item name="pin_btn_0" type="id" />
+    <item name="pin_btn_1" type="id" />
+    <item name="pin_btn_2" type="id" />
+    <item name="pin_btn_3" type="id" />
+    <item name="pin_btn_4" type="id" />
+    <item name="pin_btn_5" type="id" />
+    <item name="pin_btn_6" type="id" />
+    <item name="pin_btn_7" type="id" />
+    <item name="pin_btn_8" type="id" />
+    <item name="pin_btn_9" type="id" />
+    <item name="pin_btn_del" type="id" />
+    <item name="pin_btn_ok" type="id" />
+    <item name="weekday_1h" type="id" />
+    <item name="weekday_2h" type="id" />
+    <item name="weekday_3h" type="id" />
+    <item name="weekday_4h" type="id" />
+    <item name="weekend_1h" type="id" />
+    <item name="weekend_2h" type="id" />
+    <item name="weekend_3h" type="id" />
+    <item name="weekend_4h" type="id" />
+</resources>
