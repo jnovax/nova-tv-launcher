@@ -23,6 +23,23 @@ class ScreenTimeTrackerTest {
     }
 
     @Test
+    fun testDoesNotTickWhenDreamingOrScreenSaverIsActive() {
+        tracker.setScreenOn(true)
+        tracker.setDreaming(true)
+        tracker.setMode(Mode.KID)
+        tracker.setForegroundPackage("com.google.android.youtube.tv")
+
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+        assertFalse(limitReached)
+
+        // Exit screensaver
+        tracker.setDreaming(false)
+        tracker.tickSecond()
+        assertEquals(9, tracker.getRemainingSec())
+    }
+
+    @Test
     fun testDoesNotTickWhenInParentMode() {
         tracker.setScreenOn(true)
         tracker.setMode(Mode.PARENT)
@@ -49,6 +66,66 @@ class ScreenTimeTrackerTest {
     }
 
     @Test
+    fun testDoesNotTickOnScreensaverOrAmbientPackages() {
+        tracker.setScreenOn(true)
+        tracker.setMode(Mode.KID)
+
+        tracker.setForegroundPackage("com.google.android.backdrop")
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+
+        tracker.setForegroundPackage("com.tcl.ambient")
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+
+        tracker.setForegroundPackage("com.android.systemui")
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+        assertFalse(limitReached)
+    }
+
+    @Test
+    fun testDoesNotTickOnUntrackedApps() {
+        tracker.setScreenOn(true)
+        tracker.setMode(Mode.KID)
+
+        tracker.setForegroundPackage("com.netflix.ninja")
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+
+        tracker.setForegroundPackage("com.vocatv.app")
+        tracker.tickSecond()
+        assertEquals(10, tracker.getRemainingSec())
+        assertFalse(limitReached)
+    }
+
+    @Test
+    fun testTicksOnDesignatedEntertainmentApps() {
+        tracker.setScreenOn(true)
+        tracker.setMode(Mode.KID)
+
+        // 1. YouTube / SmartTube
+        tracker.setForegroundPackage("io.gh.reisxd.tizentube.cobalt")
+        tracker.tickSecond()
+        assertEquals(9, tracker.getRemainingSec())
+
+        // 2. MyTV
+        tracker.setForegroundPackage("vn.mytvnet.b2cott")
+        tracker.tickSecond()
+        assertEquals(8, tracker.getRemainingSec())
+
+        // 3. Nova Video Player
+        tracker.setForegroundPackage("org.courville.nova")
+        tracker.tickSecond()
+        assertEquals(7, tracker.getRemainingSec())
+
+        // 4. Spotify
+        tracker.setForegroundPackage("com.spotify.tv.android")
+        tracker.tickSecond()
+        assertEquals(6, tracker.getRemainingSec())
+    }
+
+    @Test
     fun testTicksOnThirdPartyAppAndReachesLimit() {
         tracker.setScreenOn(true)
         tracker.setMode(Mode.KID)
@@ -69,7 +146,7 @@ class ScreenTimeTrackerTest {
     fun testResetRestoresLimit() {
         tracker.setScreenOn(true)
         tracker.setMode(Mode.KID)
-        tracker.setForegroundPackage("com.netflix.ninja")
+        tracker.setForegroundPackage("vn.mytvnet.b2cott")
 
         tracker.tickSecond()
         tracker.tickSecond()
@@ -100,7 +177,7 @@ class ScreenTimeTrackerTest {
     fun testDoesNotTickBelowZero() {
         tracker.setScreenOn(true)
         tracker.setMode(Mode.KID)
-        tracker.setForegroundPackage("com.netflix.ninja")
+        tracker.setForegroundPackage("vn.mytvnet.b2cott")
         tracker.restoreState(1)
 
         tracker.tickSecond()

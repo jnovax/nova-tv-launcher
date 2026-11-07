@@ -112,11 +112,35 @@ class ForegroundMonitorService : AccessibilityService() {
                         lastSavedUsedSec = tracker.getUsedSec()
                         screenTimeStore.setUsedSec(lastSavedUsedSec)
                     }
+                    if (::timeLockOverlayManager.isInitialized && timeLockOverlayManager.isShowing()) {
+                        timeLockOverlayManager.dismiss()
+                        audioFocusInterrupter.releaseFocus()
+                        modeManager.setQuizActive(false)
+                    }
                     broadcastState()
                 }
                 Intent.ACTION_SCREEN_ON -> {
                     Log.i(TAG, "SCREEN_ON")
                     tracker.setScreenOn(true)
+                    broadcastState()
+                }
+                Intent.ACTION_DREAMING_STARTED -> {
+                    Log.i(TAG, "DREAMING_STARTED")
+                    tracker.setDreaming(true)
+                    if (::screenTimeStore.isInitialized && ::tracker.isInitialized) {
+                        lastSavedUsedSec = tracker.getUsedSec()
+                        screenTimeStore.setUsedSec(lastSavedUsedSec)
+                    }
+                    if (::timeLockOverlayManager.isInitialized && timeLockOverlayManager.isShowing()) {
+                        timeLockOverlayManager.dismiss()
+                        audioFocusInterrupter.releaseFocus()
+                        modeManager.setQuizActive(false)
+                    }
+                    broadcastState()
+                }
+                Intent.ACTION_DREAMING_STOPPED -> {
+                    Log.i(TAG, "DREAMING_STOPPED")
+                    tracker.setDreaming(false)
                     broadcastState()
                 }
             }
@@ -171,9 +195,9 @@ class ForegroundMonitorService : AccessibilityService() {
                 screenTimeStore.setUsedSec(used)
             }
 
-            if (remaining <= 0 && modeManager.getMode() == Mode.KID && !timeLockOverlayManager.isShowing()) {
+            if (remaining <= 0 && modeManager.getMode() == Mode.KID && !timeLockOverlayManager.isShowing() && !tracker.isDreaming()) {
                 val pkg = currentForegroundPackage
-                if (pkg != null && !policy.excludedPackages.contains(pkg)) {
+                if (pkg != null && policy.isTrackedPackage(pkg)) {
                     onLimitReached()
                 }
             }
@@ -210,6 +234,8 @@ class ForegroundMonitorService : AccessibilityService() {
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_DREAMING_STARTED)
+            addAction(Intent.ACTION_DREAMING_STOPPED)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(screenReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
@@ -247,6 +273,11 @@ class ForegroundMonitorService : AccessibilityService() {
             if (::tracker.isInitialized) {
                 tracker.setForegroundPackage(pkg)
             }
+            if (pkg != null && ::policy.isInitialized && ::tracker.isInitialized && ::timeLockOverlayManager.isInitialized) {
+                if (policy.isTrackedPackage(pkg) && tracker.getRemainingSec() <= 0 && modeManager.getMode() == Mode.KID && !tracker.isDreaming() && !timeLockOverlayManager.isShowing()) {
+                    onLimitReached()
+                }
+            }
         }
     }
 
@@ -256,7 +287,7 @@ class ForegroundMonitorService : AccessibilityService() {
     }
 
     private fun showTimeLockOverlay() {
-        if (timeLockOverlayManager.isShowing()) return
+        if (timeLockOverlayManager.isShowing() || (::tracker.isInitialized && tracker.isDreaming())) return
         audioFocusInterrupter.acquireFocus()
         modeManager.setQuizActive(true)
         val calendar = Calendar.getInstance()
@@ -280,6 +311,17 @@ class ForegroundMonitorService : AccessibilityService() {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 startActivity(intent)
+            },
+            onGoHome = {
+                audioFocusInterrupter.releaseFocus()
+                timeLockOverlayManager.dismiss()
+                modeManager.setQuizActive(false)
+                val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(homeIntent)
+                broadcastState()
             }
         )
         broadcastState()

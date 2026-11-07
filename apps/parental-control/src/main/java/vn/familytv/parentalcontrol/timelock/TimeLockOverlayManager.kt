@@ -32,7 +32,8 @@ class TimeLockOverlayManager(
     fun showTimeLock(
         todayHours: Int,
         onExtended: (Int) -> Unit,
-        onOpenParentConfig: (() -> Unit)? = null
+        onOpenParentConfig: (() -> Unit)? = null,
+        onGoHome: (() -> Unit)? = null
     ) {
         if (overlayLayout != null) return
 
@@ -55,11 +56,16 @@ class TimeLockOverlayManager(
                 }
             },
             onGoHome = {
-                val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_HOME)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                dismiss()
+                if (onGoHome != null) {
+                    onGoHome()
+                } else {
+                    val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    service.startActivity(homeIntent)
                 }
-                service.startActivity(homeIntent)
             }
         )
         panel.setTodayLimitHours(todayHours)

@@ -7,6 +7,7 @@ class ScreenTimeTracker(
     private val onLimitReached: () -> Unit
 ) {
     private var isScreenOn: Boolean = true
+    private var isDreaming: Boolean = false
     private var currentMode: Mode = Mode.KID
     private var foregroundPackage: String? = null
     private var usedSec: Int = 0
@@ -18,14 +19,31 @@ class ScreenTimeTracker(
     }
 
     @Synchronized
+    fun isScreenOn(): Boolean = isScreenOn
+
+    @Synchronized
+    fun setDreaming(dreaming: Boolean) {
+        isDreaming = dreaming
+    }
+
+    @Synchronized
+    fun isDreaming(): Boolean = isDreaming
+
+    @Synchronized
     fun setMode(mode: Mode) {
         currentMode = mode
     }
 
     @Synchronized
+    fun getMode(): Mode = currentMode
+
+    @Synchronized
     fun setForegroundPackage(pkg: String?) {
         foregroundPackage = pkg
     }
+
+    @Synchronized
+    fun getForegroundPackage(): String? = foregroundPackage
 
     @Synchronized
     fun setTotalLimitSec(limit: Int) {
@@ -48,9 +66,9 @@ class ScreenTimeTracker(
 
     @Synchronized
     fun tickSecond() {
-        if (!isScreenOn || currentMode != Mode.KID) return
+        if (!isScreenOn || isDreaming || currentMode != Mode.KID) return
         val pkg = foregroundPackage ?: return
-        if (policy.excludedPackages.contains(pkg)) return
+        if (!policy.isTrackedPackage(pkg)) return
 
         if (getRemainingSec() > 0) {
             usedSec++
