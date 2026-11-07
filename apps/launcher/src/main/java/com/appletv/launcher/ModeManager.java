@@ -2,6 +2,11 @@ package com.appletv.launcher;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.net.Uri;
+
+import com.appletv.contract.StatusProviderContract;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -159,5 +164,55 @@ public final class ModeManager {
         if (context == null) return null;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getStringSet(KEY_WHITELIST, null);
+    }
+
+    /**
+     * Determines the pill text color based on traffic light remaining time thresholds:
+     * - > 5 minutes (> 300s): White (#FFFFFFFF)
+     * - 2 to 5 minutes (121s to 300s): Warning Gold (#FFFFD60A)
+     * - <= 2 minutes (<= 120s): Alert Red (#FFFF453A)
+     */
+    public static int getTimePillColor(long remainingSeconds) {
+        if (remainingSeconds > 300) {
+            return 0xFFFFFFFF; // White
+        } else if (remainingSeconds > 120) {
+            return 0xFFFFD60A; // Warning Gold
+        } else {
+            return 0xFFFF453A; // Alert Red
+        }
+    }
+
+    /**
+     * Creates a ColorStateList that renders black when focused (for the white tvOS pill highlight)
+     * and the specified unfocused color otherwise.
+     */
+    public static ColorStateList getPillColorStateList(int unfocusedColor) {
+        int[][] states = new int[][] {
+            new int[] { android.R.attr.state_focused },
+            new int[] {}
+        };
+        int[] colors = new int[] {
+            0xFF000000,
+            unfocusedColor
+        };
+        return new ColorStateList(states, colors);
+    }
+
+    /**
+     * Queries remaining screen time seconds from StatusProvider (tv-parental-control).
+     * Returns -1 if provider is unavailable or query fails.
+     */
+    public static long getRemainingSecondsFromProvider(Context context) {
+        if (context == null) return -1;
+        try (Cursor cursor = context.getContentResolver().query(
+                Uri.parse(StatusProviderContract.CONTENT_URI_STRING),
+                new String[]{StatusProviderContract.COLUMN_REMAINING_SECONDS},
+                null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idx = cursor.getColumnIndex(StatusProviderContract.COLUMN_REMAINING_SECONDS);
+                if (idx >= 0) return cursor.getLong(idx);
+            }
+        } catch (Exception ignored) {}
+        return -1;
     }
 }

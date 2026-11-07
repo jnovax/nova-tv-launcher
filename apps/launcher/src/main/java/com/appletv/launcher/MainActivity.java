@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.res.ColorStateList;
+import com.appletv.contract.TimeFormatter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -206,6 +208,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             updateWifiLabel();
             sky.update();
             handler.postDelayed(this, MINUTE_MS);
+        }
+    };
+    private final Handler timerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateModeUI();
+            timerHandler.postDelayed(this, 5000);
         }
     };
 
@@ -458,11 +468,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnMode.setVisibility(View.VISIBLE);
         boolean kidMode = ModeManager.isKidMode(this);
         if (kidMode) {
-            btnMode.setText(R.string.mode_kid);
+            long remaining = ModeManager.getRemainingSecondsFromProvider(this);
+            if (remaining >= 0) {
+                btnMode.setText(TimeFormatter.formatShortRemaining(remaining));
+                int color = ModeManager.getTimePillColor(remaining);
+                ColorStateList csl = ModeManager.getPillColorStateList(color);
+                btnMode.setTextColor(csl);
+                btnMode.setCompoundDrawableTintList(csl);
+            } else {
+                btnMode.setText(R.string.mode_kid);
+                ColorStateList csl = ModeManager.getPillColorStateList(0xFFFFFFFF);
+                btnMode.setTextColor(csl);
+                btnMode.setCompoundDrawableTintList(csl);
+            }
             btnMode.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_mode_kid, 0, 0, 0);
             if (btnSettings != null) btnSettings.setVisibility(View.GONE);
         } else {
             btnMode.setText(R.string.mode_parent);
+            ColorStateList csl = ModeManager.getPillColorStateList(0xFFFFFFFF);
+            btnMode.setTextColor(csl);
+            btnMode.setCompoundDrawableTintList(csl);
             btnMode.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_mode_parent, 0, 0, 0);
             if (btnSettings != null) btnSettings.setVisibility(View.VISIBLE);
         }
@@ -889,6 +914,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateInputsButton();
         updateModeUI();
         sky.update();
+        timerHandler.removeCallbacks(timerRunnable);
+        timerHandler.post(timerRunnable);
         handler.postDelayed(minuteTick, MINUTE_MS);
         if (festive && diya != null) {
             diya.start();
@@ -974,6 +1001,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroName.animate().cancel();
         ambient.animate().cancel();
         handler.removeCallbacks(minuteTick);
+        timerHandler.removeCallbacks(timerRunnable);
         if (diya != null) diya.stop();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         if (cardPrompt != null) cardPrompt.dismiss();
