@@ -41,7 +41,7 @@
             <meta-data android:name="android.accessibilityservice" android:resource="@xml/foreground_monitor" />
         </service>
         <provider
-            android:name=".ipc.ModeContentProvider"
+            android:name=".provider.StatusProvider"
             android:authorities="vn.familytv.parentalcontrol.provider"
             android:exported="true" />
     </application>
