@@ -2,6 +2,7 @@
 build/
 app/build/
 apps/**/build/
+core/**/build/
 *.iml
 .idea/
 local.properties

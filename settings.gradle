@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "nova-tv"
 include ':apps:launcher'
 include ':apps:parental-control'
+include ':core:contract'
