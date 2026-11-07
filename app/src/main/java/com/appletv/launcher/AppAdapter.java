@@ -156,6 +156,21 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return true;
     }
 
+    static boolean isYouTubePackage(String pkg) {
+        return "org.smarttube.stable".equals(pkg) || "io.gh.reisxd.tizentube.cobalt".equals(pkg);
+    }
+
+    static String resolveAppLabel(String pkg, String rawLabel) {
+        if (isYouTubePackage(pkg)) {
+            return "YouTube";
+        }
+        return Cards.cleanLabel(rawLabel, pkg);
+    }
+
+    static boolean shouldUseCustomYouTubeBanner(String pkg) {
+        return "io.gh.reisxd.tizentube.cobalt".equals(pkg);
+    }
+
     /**
      * Rebuilds the tiles. A shown module card stands in for every tile of its package (same component,
      * so focus follows it); hidden_apps wins over a card, and a card's package in dock_apps takes that slot.
@@ -178,12 +193,20 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
             Drawable banner = loadBanner(pm, ri);
             Drawable icon = ri.loadIcon(pm);
+            if (shouldUseCustomYouTubeBanner(pkg)) {
+                Drawable custom = ctx.getDrawable(R.drawable.banner_youtube);
+                if (custom != null) {
+                    banner = custom;
+                    icon = custom;
+                }
+            }
             if (card != null) {
                 fresh.add(new Entry(Entry.CARD, card.label, component, banner, icon, card.caption, card.accent));
             } else {
                 // Same cleaner as the card prompt: an app label with a bidi override or line separator must not
                 // redraw the tile name as something else.
-                String appLabel = "org.smarttube.stable".equals(pkg) ? "YouTube" : Cards.cleanLabel(String.valueOf(ri.loadLabel(pm)), pkg); fresh.add(new Entry(appLabel, component, banner, icon));
+                String appLabel = resolveAppLabel(pkg, String.valueOf(ri.loadLabel(pm)));
+                fresh.add(new Entry(appLabel, component, banner, icon));
             }
         }
         Collections.sort(fresh, (a, b) -> {
@@ -218,6 +241,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     private Drawable loadBanner(PackageManager pm, ResolveInfo ri) {
+        if (ri != null && ri.activityInfo != null && shouldUseCustomYouTubeBanner(ri.activityInfo.packageName)) {
+            Drawable custom = ctx.getDrawable(R.drawable.banner_youtube);
+            if (custom != null) return custom;
+        }
         int id = ri.activityInfo.banner;
         if (id == 0) id = ri.activityInfo.applicationInfo.banner;
         if (id != 0) {
