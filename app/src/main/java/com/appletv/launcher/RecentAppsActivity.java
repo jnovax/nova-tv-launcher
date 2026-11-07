@@ -251,13 +251,13 @@ public class RecentAppsActivity extends Activity {
                         a.color = dominantColor(pm.getApplicationIcon(ai));
                         if (AppAdapter.isYouTubePackage(pkg)) {
                             a.label = "YouTube";
-                            if (AppAdapter.shouldUseCustomYouTubeBanner(pkg)) {
-                                Drawable custom = getDrawable(R.drawable.banner_youtube);
-                                if (custom != null) {
-                                    a.image = custom;
-                                    a.isBanner = true;
-                                    a.color = 0xFFFF0000;
-                                }
+                        }
+                        if (AppAdapter.shouldUseCustomBanner(pkg)) {
+                            Drawable custom = getDrawable(AppAdapter.getCustomBannerResId(pkg));
+                            if (custom != null) {
+                                a.image = custom;
+                                a.isBanner = true;
+                                a.color = dominantColor(custom);
                             }
                         }
                         apps.add(a);

@@ -29,4 +29,19 @@ public class AppAdapterYouTubeOverrideTest {
         assertTrue(AppAdapter.shouldUseCustomYouTubeBanner("io.gh.reisxd.tizentube.cobalt"));
         assertFalse(AppAdapter.shouldUseCustomYouTubeBanner("com.spotify.tv.android"));
     }
+
+    @Test
+    public void customBannerResIdMappingForDockApps() {
+        assertEquals(R.drawable.banner_youtube, AppAdapter.getCustomBannerResId("io.gh.reisxd.tizentube.cobalt"));
+        assertEquals(R.drawable.banner_mytv, AppAdapter.getCustomBannerResId("vn.mytvnet.b2cott"));
+        assertEquals(R.drawable.banner_nova, AppAdapter.getCustomBannerResId("org.courville.nova"));
+        assertEquals(R.drawable.banner_spotify, AppAdapter.getCustomBannerResId("com.spotify.tv.android"));
+        assertEquals(0, AppAdapter.getCustomBannerResId("com.vocatv.app"));
+
+        assertTrue(AppAdapter.shouldUseCustomBanner("io.gh.reisxd.tizentube.cobalt"));
+        assertTrue(AppAdapter.shouldUseCustomBanner("vn.mytvnet.b2cott"));
+        assertTrue(AppAdapter.shouldUseCustomBanner("org.courville.nova"));
+        assertTrue(AppAdapter.shouldUseCustomBanner("com.spotify.tv.android"));
+        assertFalse(AppAdapter.shouldUseCustomBanner("com.vocatv.app"));
+    }
 }

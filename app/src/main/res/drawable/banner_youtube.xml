@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- YouTube Dark / Cinema Leanback Banner (320x180 viewport, 160x90dp = 16:9 ratio). -->
+<!-- YouTube White / tvOS Leanback Banner (320x180 viewport, 160x90dp = 16:9 ratio). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="160dp"
     android:height="90dp"
     android:viewportWidth="320"
     android:viewportHeight="180">
 
-    <!-- Dark Cinema Background (#0F0F0F) -->
+    <!-- White Background (#FFFFFF) -->
     <path
         android:pathData="M0,0 H320 V180 H0 Z"
-        android:fillColor="#0F0F0F" />
+        android:fillColor="#FFFFFF" />
 
     <!-- YouTube Brand Play Button Centered at (160, 90) -->
     <group

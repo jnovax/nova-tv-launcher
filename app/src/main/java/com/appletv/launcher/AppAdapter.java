@@ -167,6 +167,26 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return Cards.cleanLabel(rawLabel, pkg);
     }
 
+    static int getCustomBannerResId(String pkg) {
+        if ("io.gh.reisxd.tizentube.cobalt".equals(pkg)) {
+            return R.drawable.banner_youtube;
+        }
+        if ("vn.mytvnet.b2cott".equals(pkg)) {
+            return R.drawable.banner_mytv;
+        }
+        if ("org.courville.nova".equals(pkg)) {
+            return R.drawable.banner_nova;
+        }
+        if ("com.spotify.tv.android".equals(pkg)) {
+            return R.drawable.banner_spotify;
+        }
+        return 0;
+    }
+
+    static boolean shouldUseCustomBanner(String pkg) {
+        return getCustomBannerResId(pkg) != 0;
+    }
+
     static boolean shouldUseCustomYouTubeBanner(String pkg) {
         return "io.gh.reisxd.tizentube.cobalt".equals(pkg);
     }
@@ -193,8 +213,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             if (card != null && !card.component.equals(component)) continue;   // the card stands in for this tile
             Drawable banner = loadBanner(pm, ri);
             Drawable icon = ri.loadIcon(pm);
-            if (shouldUseCustomYouTubeBanner(pkg)) {
-                Drawable custom = ctx.getDrawable(R.drawable.banner_youtube);
+            if (shouldUseCustomBanner(pkg)) {
+                Drawable custom = ctx.getDrawable(getCustomBannerResId(pkg));
                 if (custom != null) {
                     banner = custom;
                     icon = custom;
@@ -241,8 +261,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     private Drawable loadBanner(PackageManager pm, ResolveInfo ri) {
-        if (ri != null && ri.activityInfo != null && shouldUseCustomYouTubeBanner(ri.activityInfo.packageName)) {
-            Drawable custom = ctx.getDrawable(R.drawable.banner_youtube);
+        if (ri != null && ri.activityInfo != null && shouldUseCustomBanner(ri.activityInfo.packageName)) {
+            Drawable custom = ctx.getDrawable(getCustomBannerResId(ri.activityInfo.packageName));
             if (custom != null) return custom;
         }
         int id = ri.activityInfo.banner;
